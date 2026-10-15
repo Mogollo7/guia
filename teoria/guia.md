@@ -7,6 +7,7 @@ Documento vivo. Agrupa la teoría, las notas y el estilo visual del proyecto. Se
 **Parte 2 (investigación)** · §8 BioCLIP 1, 2, 2.5 · §9 Otros modelos · §10 Métodos (transfer learning, destilación, FP16, segmentación, caché) · §11 Taxonomía y especies casi idénticas · §12 Contexto, plagas y plantas · §13 Verificación del texto del usuario
 **Parte 3 (auditoría y ampliación)** · §15 ¿Se aplica a cualquier especie? · §16 Qué preguntar a una foto · §17 Etapa, sexo y edad · §18 Enfermedad en fauna y flora · §19 Método por organismo · §20 Diseño multi-pregunta · §21 Límites · §22 Pendientes (sustituido) · §23 Tabla de contenido v1
 **Parte 4 (decisiones del usuario y caso conductor)** · §24 Rango taxonómico como alcance · §26 Especie × etapa × sexo · §27 Etiquetar bien · §28 Fine-tuning frente a congelado · §29 Contexto dinámico · §30 Pocas imágenes y aumentación · §31 De animal a flora · §32 Caso *Frankliniella* · §33 Tabla de contenido definitiva · §34 Pendientes vigentes
+**Parte 5 (integración de notas de insectos y vacíos)** · §35 Insectos por contexto · §36 Cierre de vacíos (Gosner, BBCH, FLOPs, datos de gráficos) · §37 Gráficos por dibujar
 
 ---
 
@@ -778,7 +779,7 @@ Para plantas, los modelos de biodiversidad ayudan menos que uno de enfermedades:
 | Prepupa | ~1,0 día | Suelo u hojarasca; no se alimenta | Difícil |
 | Pupa | ~2,0 días | Suelo u hojarasca; no se alimenta | Difícil |
 | Adulto | — | Flores y hojas; **<2 mm** | Sí, con macro |
-Huevo a adulto: **10,2 días** a 27 °C; huevo a huevo: 44,1; 22,4; 18,2 y 15 días a 15, 20, 25 y 30 °C (EPPO). Los tamaños de larva, prepupa y pupa en mm: **dato pendiente** [SIN FUENTE]. EPPO llama «estadios larvales» también a prepupa y pupa: es solo terminología.
+Huevo a adulto: **10,2 días** a 27 °C; huevo a huevo: 44,1; 22,4; 18,2 y 15 días a 15, 20, 25 y 30 °C (EPPO). Los tamaños de larva, prepupa y pupa en mm: **dato pendiente**, fuentes en conflicto (ver §35.6). EPPO llama «estadios larvales» también a prepupa y pupa: es solo terminología.
 - **Datos esperables [INF a partir de lo anterior]:** habrá muchas fotos de adultos y pocas de huevo, prepupa y pupa (ocultos). Es un caso claro de clases escasas y desbalanceadas (§30.2).
 
 ### 32.2 Identificación
@@ -792,7 +793,7 @@ Huevo a adulto: **10,2 días** a 27 °C; huevo a huevo: 44,1; 22,4; 18,2 y 15 d�
 - La etapa decide **qué control llega**: los huevos están dentro del tejido y la prepupa y la pupa en el suelo, así que un tratamiento foliar no los alcanza [INF a partir de la biología, parcialmente en EPPO y UF]; larvas y adultos están expuestos.
 - Opciones habituales (resúmenes, fuentes secundarias): control cultural, biológico (ácaros depredadores *Amblyseius*, chinche *Orius*, hongos entomopatógenos *Beauveria* y *Metarhizium*, nematodos contra pupas del suelo) y químico, **con resistencia a insecticidas documentada en *F. occidentalis*** (lista de 2001, resumen).
 - En cultivos de exportación colombianos el umbral de trips es **0** por reglas de cuarentena; no se halló estudio que relacione capturas en trampa con infestación de la planta (Silva-Castaño y Brochero 2021).
-- **Siempre:** consultar al agrónomo y la norma local (ICA, Colombia; norma específica de *F. occidentalis*: dato pendiente). Esta guía no receta.
+- **Siempre:** consultar al agrónomo y la norma local (ICA, Colombia; norma específica de *F. occidentalis*: dato pendiente, ver §35.7). Esta guía no receta.
 
 ### 32.4 Dónde es plaga en Colombia
 *F. occidentalis* domina en la Sabana de Bogotá (crisantemo), Medellín (crisantemo, aster), Piendamó (crisantemo) y La Ceja (bouvardia); la rosa es hospedero documentado. *F. fusca*, *F. tritici*, *F. schultzei* y el tomate en Colombia: [SIN FUENTE].
@@ -849,4 +850,110 @@ Huevo a adulto: **10,2 días** a 27 °C; huevo a huevo: 44,1; 22,4; 18,2 y 15 d�
 6. Si se incluyen o no los gráficos del tablero actual (graficos-datos.html) y cuáles se añaden (ver el mensaje del chat).
 7. Imágenes y mockups listados en el chat.
 8. Si se leen las ~100 notas de app y diseño y las fases 11, 12, 14, 15 y 18 antes del PDF.
-9. Datos sin fuente que quedaron pendientes: tamaños de larva, prepupa y pupa de trips; haplodiploidía; caracteres que separan anuros crípticos (iris, membranas); FLOPs de BioCLIP.
+9. Datos sin fuente que quedaban pendientes: **cerrados en la Parte 5** — FLOPs de BioCLIP (§36.5), caracteres de anuros crípticos (§36.1), haplodiploidía (§35.5, EPPO/UF dicen que los machos salen de huevos no fecundados). **Siguen abiertos:** tamaños de larva, prepupa y pupa (§35.6) y la norma ICA para *F. occidentalis* (§35.7).
+
+---
+
+# PARTE 5 · Integración de `research_notes/Fotos vacíos e insectos por contexto/` (2026-10-15)
+
+> Fuente: `insectos_por_contexto.md` y `vacios_cerrados.md`. Marcas: [FUENTE] leída en la página; [snippet] solo resumen de búsqueda (verificar antes de citar); [SIN FUENTE]; [INF] inferencia.
+
+## 35. Identificar insectos cuando la apariencia no basta (contexto)
+
+### 35.1 Hospedero: filtra mucho en especialistas, poco en generalistas
+- Minadores, agalleros y muchos áfidos se identifican con **hospedero + forma del daño**: *The leaf and stem mines of British flies* (885 minadores; claves por planta) [snippet]; *Aphids on the World's Plants* (claves por género de planta, con medidas en preparaciones microscópicas) [snippet]; HOSTS del NHM (~180 000 registros de plantas hospederas de orugas, CC0) [snippet].
+- En generalistas como *F. occidentalis* (244 especies hospederas en 62 familias, EPPO; 65 familias, UF/IFAS) el hospedero solo **da prioridad** a candidatos. UF/IFAS advierte que «hospedero registrado» no implica que la planta sostenga una población [FUENTE].
+- *Thrips palmi*: >200 hospederos, pero plaga sobre todo de Cucurbitaceae y Solanaceae [snippet].
+- **Lección:** el hospedero cambia la probabilidad de cada especie, no la confirma [INF].
+
+### 35.2 El daño como evidencia (cuando el insecto no está en la foto)
+| Pista | Qué indica | Fuente |
+|---|---|---|
+| Plateado + punteado verde oscuro líquido (excremento) + cicatrices en flor | Trips | EPPO [FUENTE] |
+| Gránulos negros | Ácaros tetraníquidos, no trips | EPPO [FUENTE] |
+| Patrón de daño «más grueso» | *F. occidentalis* frente a *Thrips tabaci* | EPPO [FUENTE] |
+| «Pimpling» en pétalos de orquídea | Huevos puestos en el pétalo | EPPO [FUENTE] |
+| Anillos, bronceado, estrías, colapso bajo la flor | Posible TSWV; solo se confirma en laboratorio | Extensión OSU/MSU [snippet] |
+- Tipología citable del daño: grupos funcionales de alimentación (agujero, margen, esqueletización, superficial, minado, **perforación-succión**, agallas) — Labandeira et al. 2007 [snippet]; el número total de tipos de daño no se verificó [SIN FUENTE].
+- Visión artificial sobre el daño: 81,5 % de acierto en 8 categorías con cajas manuales, mAP 45 % con detección automática (Meineke et al.) [snippet]; ácaros en algodón, 91,88 % con MobileNetV1 [snippet]. **No hay conjunto público de daño por trips** [SIN FUENTE].
+
+### 35.3 Trampa, microhábitat, geografía
+- Trampa azul captura más *F. occidentalis* que la amarilla; la amarilla también atrapa minadores, áfidos y moscas blancas. Las capturas rara vez reflejan la población ni anticipan el daño [FUENTE, IN1089].
+- Feromona de agregación (neryl (S)-2-methylbutanoate, Thripline-AMS), específica de *F. occidentalis*: Lurem-TR atrae varias especies. Multiplica la captura ×1,3 en azul, ×1,7 amarilla, ×1,9 transparente, ×3,4 negra [snippet]. Una trampa cebada **sesga** la captura; no prueba la especie de cada individuo [INF].
+- Prepupa y pupa suelen estar en el suelo, pero también dentro de flores complejas (crisantemo) [FUENTE].
+- Colombia: La Ceja (Antioquia), en crisantemo dominó *F. panamensis* y *F. occidentalis* en bouvardia; en Medellín *F. occidentalis* fue la más frecuente (crisantemo y aster con más población) [snippet]. «Trips en crisantemo de Antioquia» **no** equivale automáticamente a *F. occidentalis* [INF].
+- Hora del día, altitud y estacionalidad de *Frankliniella* en Colombia: [SIN FUENTE].
+
+### 35.4 Imagen + contexto en ML
+- Blair et al. 2022 (72 000 invertebrados NEON): metadatos de contexto mejoran ≈10 % [snippet, atribución por verificar]; en taxones no vistos ResNet-50 65,5 % frente a XGBoost 39,4 % [snippet].
+- Priors geográficos (Mac Aodha et al. 2019): «gran mejora» en grano fino [FUENTE]; IP102 (>75 000 imágenes, 102 clases) agrupa plagas por cultivo en una jerarquía [snippet].
+- Un pipeline de polillas subió de 79,62 % a 88,05 % **por recortar**, no por contexto [snippet]. Ningún estudio aísla la ganancia del «cultivo hospedero» ni la prueba en *Frankliniella* [SIN FUENTE].
+
+### 35.5 Trips: especies parecidas, sexo, virus
+- *Frankliniella*: antena de 8 segmentos (*Thrips*, 7); 14–19 cerdas en la vena principal del ala anterior en *F. occidentalis*; separar especies es «tarea de expertos» (EPPO) [FUENTE]. *F. schultzei* se separa por el par III de setas ocelares y el peine del tergito VIII (ausente) [snippet].
+- Vectores de TSWV: *F. occidentalis* (solo las ninfas adquieren el virus; infectivo a los 3–10 días) [FUENTE]; *F. fusca* en maní [snippet]; *F. tritici*, *T. palmi* y chilli thrips **no** son vectores competentes [snippet].
+- Sexo: machos más pequeños y pálidos, abdomen estrecho de punta redondeada; ~4 hembras por macho; 20–40 huevos por hembra (EPPO). Los machos salen de huevos no fecundados; las fuentes leídas no usan «haplodiploidía» [FUENTE]. Solo las hembras tienen formas pálida, intermedia y oscura: **pálido y pequeño no significa otra especie** [INF].
+
+### 35.6 Tamaños del trips: conflictos (no resolver por cuenta propia)
+| Estado | Cifras | Estado del dato |
+|---|---|---|
+| Huevo | 550 × 250 µm (UF/IFAS) frente a ~200 µm (EPPO) | **Conflicto** |
+| Larva I | <1 mm, incolora o blanca (AHDB) | [snippet] |
+| Larva II | ~1 mm, amarilla (AHDB, UGA) | [snippet] |
+| Prepupa y pupa | ~2 mm (solo AHDB); color «amarillento» (AHDB) frente a «blancos» (EPPO) | **Conflicto**; dato pendiente |
+| Adulto | <2 mm; 1,2–1,4 mm (UNH) | [FUENTE]/[snippet] |
+Una búsqueda adicional (2026-10-15) no halló mm de larva II, prepupa ni pupa en fuentes abiertas; harían falta CABI o una redescripción taxonómica. Diferencia prepupa/pupa (UF/IFAS): la prepupa tiene esbozos alares cortos y antenas hacia delante; la pupa, esbozos largos y antenas dobladas hacia atrás sobre la cabeza [FUENTE]. EPPO y UF/IFAS miden cosas distintas (huevo→huevo frente a huevo→adulto): no graficarlos en la misma serie.
+
+### 35.7 Norma ICA
+Lista de plagas reglamentadas: anexo de la Res. ICA 3593/2015 (derogó la 2895/2010; modificada por 6630/2017, 29064/2018, 32/2020, 79193/2020), con tres categorías: cuarentenarias ausentes, cuarentenarias presentes y no cuarentenarias reglamentadas. **No se pudo verificar** si *F. occidentalis* figura ni con qué categoría (el host del texto no era accesible): **dato pendiente**. Que esté establecida en Colombia hace probable que no sea «ausente», pero es [INF].
+
+## 36. Cierre de vacíos (datos verificados para el PDF)
+
+### 36.1 Caracteres que separan anuros crípticos
+Iris, colores ocultos de ingle y muslo (flash colors), membrana interdigital y, sobre todo, **canto**, usados en combinación; en complejos crípticos desempatan el canto o el ADN (16S) [FUENTE, ZooKeys 868 y otros]. *Dendropsophus*: canto y 16S pesan más que el color; difiere ≥8 % en 16S entre congéneres (PMC8279364). *Boana* y *Rhinella*: sin diagnosis citable por iris o ingle [SIN FUENTE]. **Consecuencia:** ingle y muslos solo se ven manipulando el animal; si la foto no los muestra, pedir otra foto o el canto antes de dar especie [INF].
+
+### 36.2 Dimorfismo y *R. marina* / *R. horribilis*
+Bell y Zamudio 2012: dicromatismo sexual en >120 especies, dinámico (temporal) u ontogenético (permanente) [FUENTE]; el desglose 31 + 91 viene de fuente secundaria. *R. marina*: macho más pequeño, pardo-amarillento y más uniforme; hembra mayor (>225 mm LHC; adultos 85–150 mm) y moteada; callos nupciales y espículas córneas solo en machos activos (su ausencia no prueba hembra); un macho inmaduro también es manchado [AmphibiaWeb]. Animal Diversity Web dice «sexes alike»: contradicción abierta. *R. horribilis* fue revalidada en 2016 al separarla de *R. marina* (fuente secundaria); dimorfismo específico: [SIN FUENTE]. Nota de dato: ambas especies tienen fotos en `teoria/imagenes/` (R. marina en `dimorfismo/`, R. horribilis en `pares/`).
+
+### 36.3 Gosner (1960): 46 estadios [FUENTE, PDF original]
+| Rango | Fase | Criterio |
+|---|---|---|
+| 1–25 | Embrionaria / sin alimentación | Alimentación desde el 25; 21–25 «difícil para identificar» |
+| 26–30 | Esbozo del miembro posterior | Largo/diámetro del esbozo |
+| 31–37 | Pie en paleta → dedos | Aparecen dedos individuales |
+| 38–40 | Dedos y tubérculos | Proporción de dedos; tubérculos |
+| 41 | Prometamorfosis | Piel transparente sobre miembros anteriores |
+| 42–46 | Metamorfosis | Miembros anteriores (42) → completa (46) |
+Regla para la app [INF]: antes del estadio 26 devolver «no identificable». Colombia: clave de Lynch y Suárez 2011 (*Caldasia*; 41 especies, tierras bajas al oriente de los Andes); el 16S corrige ≈8 % de renacuajos mal identificados por morfología. No hay guía nacional única ni IA para renacuajos de Colombia [SIN FUENTE].
+
+### 36.4 Escala BBCH (Meier 2001), estadios principales 0–9
+0 germinación/brotación · 1 desarrollo de hojas · 2 brotes laterales/ahijamiento · 3 elongación del tallo o roseta · 4 partes vegetativas cosechables · 5 emergencia de la inflorescencia · 6 floración · 7 desarrollo del fruto · 8 maduración · 9 senescencia/reposo [FUENTE]. Primer dígito = estadio principal, segundo = secundario.
+
+### 36.5 Cómputo de los codificadores (OpenCLIP, 224 px) [FUENTE: model_profile.csv]
+| Modelo | Arquitectura | Params imagen (M) | GFLOPs imagen |
+|---|---|---|---|
+| BioCLIP 1 | ViT-B/16 | 86,19 | 35,13 |
+| BioCLIP 2 | ViT-L/14 | 303,97 | 162,03 |
+| BioCLIP 2.5 Huge | ViT-H/14 | 632,08 | 334,59 |
+Que los pesos de BioCLIP tengan exactamente esos conteos es [INF]. ~9,5× más cómputo de B/16 a H/14. No se verificó si la columna cuenta FLOPs o MACs [SIN FUENTE]. Esto cierra el pendiente de «FLOPs de BioCLIP».
+
+### 36.6 Pl@ntNet e iNaturalist
+Pl@ntNet: 1 a 5 imágenes de la misma planta por consulta, cada una con su órgano; >77 000 especies (fuente secundaria); método de fusión y precisión top-1/top-5: [SIN FUENTE]. Referencia de fusión de vistas (no Pl@ntNet): 77 % con la planta entera y 97 % fusionando perspectivas, 101 especies (Plant Methods 2019). iNaturalist: modelo v2.26 con 111 435 taxones; un taxón entra al modelo con ≈100 fotos y 60 observaciones; «Research Grade» exige >2/3 de acuerdo a nivel de especie. Habrá versiones posteriores.
+
+### 36.7 Datos para los gráficos
+- **Laboratorio frente a campo (Mohanty et al. 2016, PlantVillage):** 54 306 imágenes, 38 clases; 99,35 % en test retenido, **31,40 % y 31,69 %** en imágenes externas (n = 121 y 119).
+- **Fine-tuning (FT) frente a congelado (LP) frente a LP-FT (Kumar et al. 2022):** media ID 85,1 / 82,9 / 85,7; media OOD **59,3 / 66,2 / 68,9** (medias de 3 ejecuciones). LP-FT gana en 10/10 OOD. Orden de las columnas de ImageNet por verificar en el PDF.
+- **BioCLIP zero-shot, media de 10 tareas:** CLIP 25,5 · SigLIP 39,5 · BioCLIP 37,6 · BioCLIP 2 55,6 · BioCLIP 2.5 Huge 61,3. No mezclar con la tabla de la card de BioCLIP 1 (media 39,4, otro conjunto).
+- **Vida del trips (27 °C, UF/IFAS):** huevo 3,07 · larva I 1,78 · larva II 2,38 · prepupa 1,00 · pupa 2,04 d; total 10,2 d. Fecundidad 76,6 huevos/hembra. EPPO, huevo→huevo: 44,1 / 22,4 / 18,2 / 15 d a 15 / 20 / 25 / 30 °C.
+
+## 37. Gráficos que el PDF debe dibujar (con su dato)
+| Gráfico | Dato | Estado |
+|---|---|---|
+| Línea de vida del trips | §36.7 (UF/IFAS, 27 °C) | Dibujar; tamaños de larva/prepupa/pupa: dato pendiente |
+| Especie × etapa × sexo | §26, §36.2, §36.3 | Dibujar (esquema, no datos medidos) |
+| Fine-tuning frente a congelado | Kumar 2022 (§36.7) y Anura §28.2 | Dibujar |
+| Escalera de pocas imágenes | §30.2 | Dibujar (esquema) |
+| Escala del prior | §29.2 y Anura (+15 a +25 pp) | Dibujar; todo lo estimado, con «SIMULACIÓN» |
+| Laboratorio frente a campo | Mohanty 2016 (§36.7) | Dibujar |
+| Cómputo de BioCLIP | §36.5 | Dibujar |
+| Árbol taxonómico y pipeline | §11, §1.6 | Dibujar |

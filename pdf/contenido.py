@@ -307,8 +307,8 @@ hoja(titulo("Etiquetar bien") +
 hoja(titulo("Pocas imágenes: aumentación y alternativas") +
      '<p class="lead">Si faltan fotos, baja peldaño a peldaño, de lo más barato a lo más costoso.</p>' +
      graf("Escalera si no hay suficientes imágenes", C.escalera(467),
-          "Seis respuestas a la falta de fotos, ordenadas por coste. Las cifras del primer peldaño son de BioCLIP 1, no de trips.",
-          "Con 1 a 5 fotos por clase ya hay un punto de partida útil; las imágenes sintéticas son el último recurso.") +
+          "Siete respuestas a la falta de fotos, ordenadas por coste. Las cifras del primer peldaño son de BioCLIP 1, no de trips.",
+          "Con 1 a 5 fotos por clase ya hay un punto de partida útil. Si aun así no alcanza, o las especies se parecen demasiado, se suma contexto antes de recurrir a imágenes sintéticas (capítulo 05).") +
      '<div class="c2">'
      f'<h3>Aumentación de Anura {E("PROYECTO")}</h3>'
      '<p><b>Moderada</b>: recorte 0,6–1,0, volteos, rotación ±20°, brillo y contraste 0,25, matiz 0,05. <b>Agresiva</b> solo en las repeticiones de especies con menos de 70 individuos. Validación y test sin aumentación.</p>'
@@ -460,6 +460,7 @@ apertura(5, "Contexto", ["Cuando la imagen", "ya no alcanza"],
 
 hoja(titulo("El contexto dinámico") +
      '<p class="lead">El lugar, la fecha o el cultivo cambian qué especies son probables. Pero una especie endémica y una presente en todas partes no se tratan igual.</p>' +
+     nota("Para recordar.", "si no tienes suficientes fotos, o las especies se parecen demasiado, <b>suma contexto</b> para desempatar: lugar, altitud, fecha, hospedero. El contexto reordena las candidatas; nunca decide solo.", True) +
      aprende(["Cómo combinar foto y lugar.", "Por qué el prior debe ser dinámico y acotado."]) +
      '<div class="g2"><div>'
      f'<p>Mac Aodha et al. 2019 {E("FUENTE")}: P(clase | imagen, lugar) ∝ P(clase | imagen) · P(clase | lugar). En iNat2018 el top-1 pasó de 60,2 a <b>72,7</b>. Donde los datos no tienen estructura geográfica, no ayuda.</p>'
@@ -494,11 +495,85 @@ hoja(titulo("Especies casi idénticas") +
             "Avisa al usuario cuando la respuesta cae en un par.", "Pide el dato que desempata: otra foto, el canto, el lugar."]),
      "Especies casi idénticas")
 
+hoja(titulo("Pensar como un especialista") +
+     '<p class="lead">Cuando faltan individuos o el parecido es muy grande, la foto ya no basta. Un especialista no adivina: busca otros datos que lo lleven a la respuesta correcta. El sistema puede hacer lo mismo.</p>' +
+     aprende(["Cómo llega a una conclusión un especialista de campo.", "Qué pieza del sistema imita cada paso.", "Cuándo activar este modo."]) +
+     graf("Del razonamiento del especialista al sistema", C.especialista(467),
+          "Los seis pasos con que un especialista llega a una conclusión y la pieza del sistema que imita cada uno. En lima, los dos que más desempatan.",
+          "El sistema no tiene que saber más que el experto: tiene que pedir los mismos datos que él pediría.") +
+     '<h2>Cuándo activar el modo especialista</h2>' +
+     tabla([["Disparador", "Umbral de referencia", "Qué hace el sistema"],
+            ["Pocos individuos de la especie", "Menos de 3–5 individuos (mínimo viable) o menos de 10 en el paquete " + E("PROYECTO"), "Baja la confianza y pide contexto antes de dar especie"],
+            ["Par gemelo", "Coseno entre centroides ≥ 0,90 o confusión ≥ 8 % en validación (criterio de Anura para sugerir grupos)", "Muestra el par y pide el rasgo que lo separa"],
+            ["Duda entre las dos primeras", "Diferencia pequeña entre top-1 y top-2 " + E("INF"), "Pide otra foto o un dato de contexto"],
+            ["Etapa difícil", "Renacuajo antes del estadio 26 de Gosner; prepupa o pupa de trips", "Responde a nivel de grupo de etapas"]], [24, 44, 32], "sm"),
+     "Pensar como un especialista")
+
+hoja(titulo("Qué datos usa el especialista") +
+     '<p class="lead">Para emular a un especialista hay que saber qué datos usa y cuánto pesa cada uno. En Anura, el herpetólogo los ordenó así.</p>' +
+     '<div class="g2"><div>' +
+     graf("Importancia de cada dato para el herpetólogo", C.hbars([{"l": "Lugar (GPS)", "v": 10, "hi": 1}, {"l": "Altitud", "v": 10, "hi": 1}, {"l": "Canto (crípticas)", "v": 10, "hi": 1},
+                                                              {"l": "Fecha y hora", "v": 8}, {"l": "Microhábitat", "v": 8}, {"l": "Talla", "v": 6}], 10, 222, 95),
+          "Puntuación de 0 a 10 que dio el especialista del proyecto a cada variable de contexto " + E("PROYECTO") + ".",
+          "Lugar, altitud y canto pesan lo mismo que la foto en las especies crípticas.") +
+     '</div><div>'
+     '<h3>Ejemplo: un par gemelo</h3>'
+     '<p>La foto dice «<i>Pristimantis</i>, dos candidatas al 48 % y 41 %». Un especialista miraría la ingle y el iris, que en ese género son diagnósticos, y escucharía el canto.</p>'
+     '<p>El sistema responde lo mismo que diría él: «Grupo de dos especies. Para separarlas necesito una foto de la ingle o una grabación del canto».</p>'
+     '<h3>Sin el dato que falta</h3>'
+     '<p>Se queda en el nivel que sí sostiene: género, con las dos candidatas y su porcentaje.</p>'
+     '</div></div>' +
+     exp("¿Ayudan los datos de contexto en Anura?", "Cada dato medido por separado", "A MEDIAS",
+         [("Lugar", "Prior de zona en un paquete real: 62,9 → 72,5 % (+9,6 pp, 167 fotos, sin fuga)"),
+          ("Clima", "+3,9 pp con 129 fotos: señal frágil y depende de la red"),
+          ("Género", "Un prior por género empeoró: 0,634 → 0,411"),
+          ("Altitud", "Como filtro de rechazo no cambió nada; <i>R. marina</i> y <i>R. horribilis</i> comparten altitud"),
+          ("Cambio", "Cada dato se mide solo antes de sumarlo, y ninguno decide la especie")]) +
+     turno(["Pregunta a un especialista qué datos usa y en qué orden.", "Convierte cada dato en un prior acotado o en una pregunta al usuario.",
+            "Para cada par gemelo, escribe la clave: qué rasgo mirar y qué foto pedir.", "Mide cada dato por separado antes de sumarlo."]),
+     "Qué datos usa el especialista")
+
 verde("05", "El contexto reordena candidatas. Nunca decide solo.", "≈5×",
       "multiplicó el prior a <i>D. truncatus</i> y volteó una <i>D. bogerti</i> bien identificada.",
       "Un prior sin límite puede ganarle a una foto clara. Los registros más valiosos son los que aparecen donde no se esperaba.",
       "Acota el prior entre 0,5 y 1,5, deja que la especie oficial salga de la imagen y comprueba que el prior no voltea aciertos.", 43,
       boca="El lugar cambia el orden y el porcentaje, no el veredicto.")
+
+hoja(titulo("Ubicación previa con iNaturalist y GBIF") +
+     '<p class="lead">Antes de identificar nada, descarga dónde se ha visto cada especie candidata. Así el sistema sabe qué es plausible en el lugar de la foto, a qué altura vive y en qué meses aparece.</p>' +
+     graf("Del listado de candidatas al prior de ubicación", C.cadena([("CANDIDATAS", "especies del grupo"), ("OCURRENCIAS", "GBIF + iNaturalist"), ("LIMPIAR", "precisión, duplicados"),
+                                                                      ("ALTITUD Y CLIMA", "modelo de elevación"), ("RESUMEN", "mapa, altitud, meses"), ("PRIOR", "acotado 0,5–1,5")], hi=(1, 5)),
+          "Los pasos para convertir registros públicos de presencia en un prior por especie.",
+          "Es trabajo previo: se calcula una vez por versión del catálogo, no en cada foto.") +
+     '<div class="c2">'
+     '<h3>Qué pedir a GBIF</h3><p><code>occurrence/search</code> con <code>hasCoordinate=true</code> y <code>hasGeospatialIssue=false</code>. Guarda latitud, longitud, <code>coordinateUncertaintyInMeters</code>, fecha, <code>elevation</code> y, si vienen, <code>lifeStage</code> y <code>sex</code>.</p>'
+     '<h3>Qué pedir a iNaturalist</h3><p>Observaciones de grado de investigación con coordenadas y fecha. Sus anotaciones de etapa de vida y sexo dan, además, <b>cuándo</b> aparece cada etapa.</p>'
+     f'<h3>Cómo lo hizo Anura {E("PROYECTO")}</h3><p>Conteo de observaciones de entrenamiento a 50 km, suavizado (α = 0,5) y peso 0,75. Se descartaron 300 registros con hasta 7.270 km de imprecisión. La ganancia decae con la distancia (24 → 21 → 15 pp): señal geográfica real, no memoria de coordenadas.</p>'
+     '<h3>Cuidado</h3><ul><li>Hay más registros cerca de ciudades y carreteras.</li><li>GBIF repite registros de iNaturalist.</li><li>Las especies amenazadas vienen con coordenadas ofuscadas.</li><li>«No observado» no es «ausente».</li></ul>'
+     '</div>'
+     '<pre>import requests\nr = requests.get("https://api.gbif.org/v1/occurrence/search", params={\n    "scientificName": "Frankliniella occidentalis", "country": "CO",\n    "hasCoordinate": "true", "hasGeospatialIssue": "false", "limit": 300}).json()\nfor o in r["results"]:\n    print(o.get("decimalLatitude"), o.get("decimalLongitude"), o.get("elevation"),\n          o.get("eventDate"), o.get("lifeStage"), o.get("coordinateUncertaintyInMeters"))</pre>',
+     "Ubicación previa con iNaturalist y GBIF")
+
+hoja(titulo("El estado según la época y el clima") +
+     '<p class="lead">Si quieres saber el estado de un grupo (su etapa, si está en reproducción, si hay crías o larvas), la fecha, la temperatura, la altitud y el lugar cambian lo que es probable ver.</p>' +
+     aprende(["Por qué la misma especie está en etapas distintas según la época y el lugar.", "Qué dato usar según el grupo.", "Cómo convertirlo en un prior."]) +
+     '<div class="g2"><div>' +
+     graf("Temperatura y ciclo del trips", C.linea([(15, 44.1, "15 °C"), (20, 22.4, "20 °C"), (25, 18.2, "25 °C"), (30, 15, "30 °C")], (12, 32), (0, 60), "temperatura", "días huevo → huevo", 222, 140),
+          "Días que tarda <i>F. occidentalis</i> de huevo a huevo a cuatro temperaturas (EPPO) " + E("FUENTE") + ".",
+          "Con calor el ciclo es casi 3 veces más corto: la etapa esperable depende de la temperatura de las semanas anteriores.") +
+     '</div><div>'
+     '<h3>La altitud cambia la temperatura</h3><p>En la atmósfera estándar la temperatura baja unos 6,5 °C por kilómetro de altura ' + E("INF") + '. La misma plaga avanza más despacio en la Sabana de Bogotá (≈2.600 m) que en un cultivo a 1.500 m.</p>'
+     '<h3>Grados-día</h3><p>Sumar la temperatura por encima de un umbral estima cuánto avanzó el desarrollo. EPPO no da el umbral de <i>F. occidentalis</i>: búscalo antes de usar este método.</p>'
+     '</div></div>' +
+     tabla([["Grupo", "Qué consultar", "Para qué"],
+            ["Anuros", "Meses con cantos, amplexo, puestas y renacuajos (anotaciones de etapa de iNaturalist); lluvias", "Saber si una foto de renacuajo o de amplexo es esperable ese mes " + E("INF")],
+            ["Insectos (trips)", "Temperatura de las últimas semanas, altitud y floración del cultivo (BBCH 6)", "Esperar más adultos en flor y más larvas tras días cálidos"],
+            ["Plantas", "Estadio BBCH por mes y altitud", "Saber si toca floración o fruto"],
+            ["Aves y mamíferos", "Épocas de cría, gestación y muda", "Esperar crías, juveniles o plumaje nuevo en sus meses"]], [17, 47, 36], "sm") +
+     exp("¿Ayuda el clima del día?", "Prior de clima (Open-Meteo)", "A MEDIAS",
+         [("Se probó", "Temperatura y lluvia del lugar y la fecha de la foto"), ("Resultado", "+3,9 pp con 129 fotos: señal frágil"),
+          ("Cambio", "Peso bajo (0,2), nunca decide; mejor usar el calendario de observaciones de cada especie")]),
+     "El estado según la época y el clima")
 
 hoja(titulo("Etapa, sexo y edad") +
      '<p class="lead">La etapa tiene escalas estándar para etiquetar; el sexo depende de la especie; la edad casi nunca sale de una foto.</p>' +

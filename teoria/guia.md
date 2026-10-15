@@ -9,6 +9,7 @@ Documento vivo. Agrupa la teoría, las notas y el estilo visual del proyecto. Se
 **Parte 4 (decisiones del usuario y caso conductor)** · §24 Rango taxonómico como alcance · §26 Especie × etapa × sexo · §27 Etiquetar bien · §28 Fine-tuning frente a congelado · §29 Contexto dinámico · §30 Pocas imágenes y aumentación · §31 De animal a flora · §32 Caso *Frankliniella* · §33 Tabla de contenido definitiva · §34 Pendientes vigentes
 **Parte 5 (vacíos cerrados e insectos por contexto)** · §35 Vacíos cerrados (crípticos, dimorfismo, Gosner, BBCH, FLOPs, Pl@ntNet/iNat, datos de gráficos) · §36 Gráficos: lista final · §37 Insectos por contexto (*Frankliniella*)
 **Parte 6 (para construir)** · §38 De dónde sacar imágenes y cómo scrapear · §39 Conseguir y configurar BioCLIP · §40 Stack: Kotlin, React Native, Flutter o servidor · §41 Individuos frente a fotos; sobreajuste y subajuste
+**Parte 7 (cuando la foto no basta)** · §42 Regla del contexto · §43 Pensar como un especialista · §44 Ubicación previa con iNaturalist y GBIF · §45 Estado según la época, la temperatura, la altitud y el lugar
 
 ---
 
@@ -1104,3 +1105,38 @@ Etiquetas: **[DOC]** documentación oficial de la herramienta (las cuotas y vers
 | **Punto justo** | Validación en su mejor valor; entrenamiento y validación cerca | Anura, fase 4: pico de validación 72,7 % en la época 10 [proyecto] | Parada temprana: guarda ese punto |
 | **Sobreajuste** | Entrenamiento sigue bajando, validación sube o se estanca | Anura: pérdida de entrenamiento 0,92 → 0,01 con 28,7 M parámetros y ~2.200 imágenes; test 69,2 % frente a 70,4 % sin entrenar [proyecto] | Congelar el encoder, más individuos (no más fotos del mismo), aumentación moderada, regularización, menos épocas |
 - **La trampa que oculta el sobreajuste:** dividir al azar en vez de por individuo o sitio. Las fotos del mismo animal en train y test inflan la métrica (Fase 13: 100 % de los KNOWN dentro de TRAIN) [proyecto].
+
+
+---
+
+# PARTE 7 · Cuando la foto no basta: contexto y razonamiento de especialista (2026-10-15)
+
+## 42. La regla
+**Si no tienes suficientes fotos, o las especies se parecen demasiado, suma contexto para desempatar** (lugar, altitud, fecha, hospedero). El contexto reordena las candidatas; nunca decide solo (prior acotado 0,5–1,5; §29). En la escalera de pocas imágenes (§30.2) es el peldaño anterior a las imágenes sintéticas.
+
+## 43. Pensar como un especialista
+Cuando faltan individuos o el parecido es muy grande, el sistema emula cómo concluye un especialista de campo [INF, apoyado en Anura]:
+| Paso del especialista | Pieza del sistema |
+|---|---|
+| Mira la foto: grupo y candidatas | Encoder: top-5 con probabilidad |
+| ¿Dónde y a qué altura? Descarta lo que no vive ahí | Prior de ubicación (iNaturalist, GBIF; §44) |
+| ¿En qué época? ¿Se reproduce?, ¿qué etapa toca? | Calendario de observaciones y clima (§45) |
+| ¿Qué rasgo las separa? (iris, ingle, canto, setas) | Clave del par gemelo: pide ese dato |
+| ¿Hay más evidencia? | Repite con el dato nuevo |
+| Concluye con su nivel | Top-3 + nivel + qué falta |
+
+**Cuándo activarlo:** menos de 3–5 individuos por clase o menos de 10 en el paquete [proyecto]; par gemelo con coseno entre centroides ≥ 0,90 o confusión ≥ 8 % en validación (criterio de Anura para sugerir clústeres); diferencia pequeña entre top-1 y top-2 [INF]; etapa difícil (renacuajo antes de Gosner 26; prepupa o pupa de trips).
+
+**Pesos del herpetólogo en Anura** (hallazgos §7.4): GPS 10, altitud 10, canto 10 (crípticas), fecha y hora 8, microhábitat 8, talla 6.
+
+**Medido en Anura, dato por dato:** prior de zona en paquete real 62,9 → 72,5 % (+9,6 pp, 167 fotos, sin fuga); clima +3,9 pp (n=129, frágil); prior por género perjudicial (0,634 → 0,411); altitud como rechazo sin efecto (*R. marina* y *R. horribilis* comparten altitud). Regla: medir cada dato por separado antes de sumarlo.
+
+## 44. Ubicación previa con iNaturalist y GBIF
+Trabajo previo por versión del catálogo: candidatas → ocurrencias (GBIF `occurrence/search` con `hasCoordinate=true` y `hasGeospatialIssue=false`; iNaturalist de grado de investigación) → limpiar (precisión, duplicados entre fuentes, cautivos) → altitud y clima (modelo de elevación) → resumen por especie (mapa, rango altitudinal, meses) → prior acotado. Campos útiles: coordenadas, `coordinateUncertaintyInMeters`, fecha, `elevation`, `lifeStage`, `sex`; en iNaturalist, las anotaciones de etapa y sexo. Anura: conteo a 50 km, α = 0,5, peso 0,75; 300 registros descartados por imprecisión de hasta 7.270 km; ganancia que decae con la distancia (24 → 21 → 15 pp). Cuidado: sesgo hacia ciudades y carreteras, duplicados GBIF–iNaturalist, coordenadas ofuscadas, «no observado» ≠ «ausente».
+
+## 45. El estado según la época, la temperatura, la altitud y el lugar
+Para preguntas de estado (etapa, reproducción, crías, larvas):
+- **Temperatura:** *F. occidentalis* tarda 44,1 días de huevo a huevo a 15 °C y 15 días a 30 °C (EPPO): la etapa esperable depende de la temperatura de las semanas previas. Grados-día: el umbral de desarrollo no está en EPPO (buscarlo antes de usar el método).
+- **Altitud:** la temperatura baja ~6,5 °C por km en la atmósfera estándar [INF/estándar]; la misma plaga avanza más despacio a 2.600 m que a 1.500 m.
+- **Por grupo:** anuros, meses con cantos, amplexo, puestas y renacuajos (anotaciones de iNaturalist) y lluvias [INF]; insectos, temperatura acumulada y floración del cultivo (BBCH 6); plantas, BBCH por mes y altitud; aves y mamíferos, épocas de cría, gestación y muda.
+- **Medido:** el clima del día dio +3,9 pp (n=129) en Anura: peso bajo (0,2), nunca decide; mejor el calendario de observaciones por especie.

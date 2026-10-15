@@ -104,7 +104,7 @@ table.tb{border-collapse:collapse;width:100%;font-size:8pt;line-height:1.36;marg
 .pc-col p{margin:0 0 12pt;color:#fff;font-size:9.4pt;line-height:1.5}
 .titulo{font-family:Aquire,sans-serif;font-weight:700;line-height:.95;margin:0}
 .sub{font-family:Bricolage,sans-serif;font-weight:600;line-height:1.22;margin:0}
-.idx{font-size:9pt;line-height:1.42}
+.idx{font-size:8.8pt;line-height:1.36}
 .idx .n1{display:flex;align-items:baseline;gap:6pt;font-weight:700;font-size:10pt;margin:7pt 0 1pt}
 .idx .n2{display:flex;align-items:baseline;gap:6pt;padding-left:22pt}
 .idx .g{flex:1;border-bottom:1pt dotted #777;transform:translateY(-3pt)}

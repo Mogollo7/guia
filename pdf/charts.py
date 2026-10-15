@@ -239,6 +239,7 @@ def escalera(w=483):
           ("Clases desbalanceadas", "Oversampling con aumentación en las repeticiones; pesos de raíz cuadrada", "Anura: < 70 individuos"),
           ("Faltan variantes difíciles", "CutMix, RandomErasing, copy-paste", "No mezclar especies del mismo género"),
           ("Faltan fotos de verdad", "Fuentes públicas y fotos propias; fusionar etapas (prepupa-pupa)", "Las etapas no vienen etiquetadas"),
+          ("Aún no alcanza o se parecen demasiado", "Suma contexto: lugar, altitud, fecha, hospedero; reordena, no decide", "Prior acotado 0,5–1,5"),
           ("Último recurso", "Imágenes sintéticas (difusión), nunca en val ni test", "Evidencia débil")]
     rh = 40
     h = len(st) * rh
@@ -403,3 +404,42 @@ def scraping(w=483):
         s += T(x + bw / 2, 22, f"{i+1}", "middle", "", 8, 700) + T(x + bw / 2, 34, t, "middle", "", 6.3, 700) + T(x + bw / 2, 45, d, "middle", "", 5.6)
     s += T(0, 70, "Lima: los dos pasos que más evaluaciones han arruinado si se saltan (fotos repetidas y división al azar).", "start", "mu", 6.5)
     return svg(w, h, s)
+
+
+def especialista(w=467):
+    """Cómo concluye un especialista y cómo lo emula el sistema, paso a paso."""
+    pares = [("Mira la foto", "¿qué grupo y qué candidatas?", "Encoder: top-5 con su probabilidad"),
+             ("¿Dónde y a qué altura?", "descarta lo que no vive ahí", "Prior de ubicación (iNaturalist, GBIF)"),
+             ("¿En qué época?", "¿se reproduce?, ¿qué etapa toca?", "Calendario de observaciones y clima"),
+             ("¿Qué rasgo las separa?", "iris, ingle, canto, setas", "Clave del par gemelo: pide ese dato"),
+             ("¿Hay más evidencia?", "otra foto, el canto, el hospedero", "Repite con el dato nuevo"),
+             ("Concluye con su nivel", "especie, género o «no sé»", "Top-3 + nivel + qué falta")]
+    rh = 38
+    h = len(pares) * rh + 26
+    cw = (w - 40) / 2
+    s = T(0, 9, "EL ESPECIALISTA", "start", "", 7, 700) + T(cw + 40, 9, "EL SISTEMA LO EMULA", "start", "", 7, 700)
+    for i, (a, b, c) in enumerate(pares):
+        y = 18 + i * rh
+        s += f'<rect x="0" y="{y}" width="{n(cw)}" height="{rh-8}" rx="7" fill="#fff" stroke="#000" stroke-width=".7"/>'
+        s += T(9, y + 12, f"{i+1} · {a}", "start", "", 7.2, 700) + T(9, y + 23, b, "start", "mu", 6.6)
+        x2 = cw + 40
+        s += f'<path d="M{n(cw+4)} {y+15}H{n(x2-4)}" stroke="#000" stroke-width=".7"/><path d="M{n(x2-4)} {y+15}l-4 -2.5v5z" fill="#000"/>'
+        hi = i in (1, 3)
+        s += f'<rect x="{n(x2)}" y="{y}" width="{n(cw)}" height="{rh-8}" rx="7" fill="{LIMA if hi else NEGRO}" stroke="#000" stroke-width=".7"/>'
+        s += T(x2 + 9, y + 18, c, "start", "", 7, 700, "#000" if hi else "#fff")
+    return svg(w, h, s)
+
+
+def cadena(pasos, hi=(), w=467, alto=50):
+    """Cadena de cajas numeradas: [(titulo, detalle)]."""
+    k = len(pasos)
+    bw = (w - (k - 1) * 8) / k
+    s = ""
+    for i, (t, d) in enumerate(pasos):
+        x = i * (bw + 8)
+        h_ = i in hi
+        s += f'<rect x="{n(x)}" y="2" width="{n(bw)}" height="{alto}" rx="7" fill="{LIMA if h_ else "#fff"}" stroke="#000" stroke-width=".7"/>'
+        s += T(x + bw / 2, 18, str(i + 1), "middle", "", 8, 700) + T(x + bw / 2, 31, t, "middle", "", 6.6, 700) + T(x + bw / 2, 43, d, "middle", "", 5.9)
+        if i < k - 1:
+            s += f'<path d="M{n(x+bw)} {2+alto/2}h8" stroke="#000" stroke-width=".7"/>'
+    return svg(w, alto + 6, s)

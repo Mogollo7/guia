@@ -8,6 +8,7 @@ Documento vivo. Agrupa la teoría, las notas y el estilo visual del proyecto. Se
 **Parte 3 (auditoría y ampliación)** · §15 ¿Se aplica a cualquier especie? · §16 Qué preguntar a una foto · §17 Etapa, sexo y edad · §18 Enfermedad en fauna y flora · §19 Método por organismo · §20 Diseño multi-pregunta · §21 Límites · §22 Pendientes (sustituido) · §23 Tabla de contenido v1
 **Parte 4 (decisiones del usuario y caso conductor)** · §24 Rango taxonómico como alcance · §26 Especie × etapa × sexo · §27 Etiquetar bien · §28 Fine-tuning frente a congelado · §29 Contexto dinámico · §30 Pocas imágenes y aumentación · §31 De animal a flora · §32 Caso *Frankliniella* · §33 Tabla de contenido definitiva · §34 Pendientes vigentes
 **Parte 5 (vacíos cerrados e insectos por contexto)** · §35 Vacíos cerrados (crípticos, dimorfismo, Gosner, BBCH, FLOPs, Pl@ntNet/iNat, datos de gráficos) · §36 Gráficos: lista final · §37 Insectos por contexto (*Frankliniella*)
+**Parte 6 (para construir)** · §38 De dónde sacar imágenes y cómo scrapear · §39 Conseguir y configurar BioCLIP · §40 Stack: Kotlin, React Native, Flutter o servidor · §41 Individuos frente a fotos; sobreajuste y subajuste
 
 ---
 
@@ -1020,3 +1021,86 @@ Nota de método: lo de EDIS/UF-IFAS (IN1089) y EPPO (FRANOC) se leyó abierto; l
 3. El **daño** es evidencia indirecta: excremento verde oscuro (trips) frente a gránulos negros (ácaros).
 4. La **variación dentro de la especie** (sexo, forma de color, etapa) confunde al clasificador: etiquétala.
 5. **Cada dato con su fuente**: donde dos fuentes se contradicen (tamaño del huevo, color de la pupa), se deja el conflicto escrito.
+
+
+---
+
+# PARTE 6 · Para construir: datos, modelo, stack y ajuste (2026-10-15)
+
+Etiquetas: **[DOC]** documentación oficial de la herramienta (las cuotas y versiones cambian: compruébalas antes de usarlas); **[proyecto]** medido o decidido en Anura; **[INF]** recomendación propia.
+
+## 38. De dónde sacar imágenes de cualquier animal y cómo scrapear
+
+### 38.1 Fuentes
+| Fuente | Qué da | Cómo se accede [DOC] | Cuidado |
+|---|---|---|---|
+| **iNaturalist** | Fotos con observación, lugar, fecha, autor, licencia y «grado de investigación» | API v1 (`api.inaturalist.org/v1/observations`, filtros `taxon_name` o `taxon_id`, `quality_grade=research`, `photos=true`, `photo_license`, `per_page` hasta 200); cliente `pyinaturalist`; volcado abierto en AWS (`inaturalist-open-data`: `observations`, `photos`, `taxa`, `observers` en CSV y fotos por tamaño) | Cuota de peticiones y de descarga de fotos (la documentación pide ~1 petición por segundo y menos de 10.000 al día); en insectos las etiquetas son las menos fiables (§27) |
+| **GBIF** | Registros de muchas colecciones, incluido iNaturalist | API `occurrence/search` con `mediaType=StillImage` (paginado; para volúmenes grandes, descarga con cuenta y DOI citable); cliente `pygbif` | **Duplica** registros de iNaturalist: deduplica entre fuentes |
+| **Wikimedia Commons** | Fotos curadas con autor y licencia | API de MediaWiki (`prop=imageinfo`, `iiprop=url|extmetadata`) por categoría | Pocas fotos por especie; licencia por archivo |
+| **Encyclopedia of Life**, colecciones de museos | Fotos de referencia y especímenes | API o descarga | Muchas fotos de ejemplar muerto o en mano |
+| **Conjuntos ya armados** | iNat2021 (10.000 especies), TreeOfLife-10M (el de BioCLIP), BIOSCAN-5M (insectos), IP102 (plagas), Pl@ntNet-300K y PlantVillage (plantas) | Hugging Face o la página del conjunto | Revisa la licencia de cada conjunto; el test de laboratorio engaña (§18.3) |
+| **Sonido** | Xeno-canto (cantos) | API v3 con clave | Anura: la API v2 se retiró [proyecto] |
+| **Fotos propias** | La única fuente de etapas raras (huevo, pupa) y de tu región | Protocolo de captura (§32.2) | Es la fuente más cara y la más útil |
+
+### 38.2 Cómo scrapear sin romper nada (pipeline)
+1. **Lista de taxones** con su backbone (GBIF o el catálogo del grupo) y **sinónimos**: un nombre viejo esconde fotos y un sinónimo mezcla especies (*D. labialis* = *D. molitor*) [proyecto].
+2. **Consulta por API, nunca por HTML**, una especie a la vez, con un `User-Agent` que te identifique, pausa entre peticiones y reintentos con espera creciente.
+3. Guarda **metadatos antes que fotos**: `obs_id`, `photo_id`, URL, licencia, autor, coordenadas y su precisión, fecha, grado de calidad. En iNaturalist la URL de la foto cambia de tamaño reemplazando `square` por `medium`, `large` u `original` [DOC].
+4. **Filtra**: licencias que puedas usar (CC0, CC BY; CC BY-NC solo si no es comercial), coordenadas imprecisas (Anura descartó hasta 7.270 km de imprecisión), animales cautivos, fotos de manejo o amplexo si no las quieres [proyecto].
+5. **Descarga** con cola, límite de velocidad y reanudación (`img2dataset` o un script propio); verifica que cada archivo abre.
+6. **Deduplica** por hash exacto (SHA-256), por hash perceptual (pHash/dHash) **y por observación** entre fuentes [proyecto].
+7. **Divide por individuo o por observación** antes de aumentar, y congela el test [proyecto].
+8. **Versiona**: fecha de la descarga, consulta exacta y conteos por especie y etapa.
+- Tiempos medidos en Anura: GBIF ≈7 s por especie; iNaturalist 5–10 min por especie (40 individuos nuevos, 3 fotos por individuo) [proyecto].
+- **Ética:** respeta la licencia y cita al autor; las coordenadas de especies amenazadas vienen ofuscadas y así deben quedar.
+
+## 39. Conseguir el modelo BioCLIP y configurarlo según la necesidad
+
+### 39.1 Dónde está
+- Hugging Face, organización Imageomics: `imageomics/bioclip` (v1, ViT-B/16, MIT), `imageomics/bioclip-2` (ViT-L/14) y `imageomics/bioclip-2.5-vith14` (ViT-H/14, MIT) [FUENTE].
+- Se carga con **OpenCLIP** (`pip install open_clip_torch`): `open_clip.create_model_and_transforms("hf-hub:imageomics/bioclip")` devuelve el modelo y el preprocesado; `open_clip.get_tokenizer(...)` el tokenizador [DOC].
+- **pybioclip** (`pip install pybioclip`) da clasificadores listos: `TreeOfLifeClassifier` (predice por rango, del reino a la especie), `CustomLabelsClassifier` (tus etiquetas, zero-shot) y una línea de comandos `bioclip predict` [DOC]. Comprueba qué versiones de BioCLIP admite la versión que instales.
+
+### 39.2 Configuraciones típicas
+| Necesidad | Configuración [INF + proyecto] |
+|---|---|
+| Probar en una tarde | `bioclip predict` o `CustomLabelsClassifier` con tus nombres: línea base zero-shot |
+| Tus especies con pocas fotos | Embeddings congelados (`encode_image`, normalizar L2) + centroide por especie, etapa o sexo; kNN de comparación |
+| Móvil sin conexión | Solo la **torre de imagen** de BioCLIP 1, ONNX opset 18, batch 1, FP16 (165,6 MB) + centroides en SQLite [proyecto, §10.3] |
+| Servidor con GPU | BioCLIP 2.5 (~2 GB en FP16) cargado una vez: `HF_HOME` fijo, `HF_HUB_OFFLINE=1` en producción, proceso caliente, vectores de texto precalculados (§10.5) |
+| Compromiso | BioCLIP 2 (ViT-L/14) |
+| Siempre | Mismo preprocesado (224×224, media y desviación de OpenCLIP) y **contrato de embedding**: hash del encoder + dimensión + preprocesado + normalización; cambiar de versión obliga a recalcular todos los vectores |
+
+## 40. Stack: Kotlin, React Native, Flutter o el móvil como entrada de un servidor
+
+| Opción | Dónde corre el modelo | Piezas habituales [DOC/INF] | A favor | En contra |
+|---|---|---|---|---|
+| **Kotlin nativo, todo local** | En el teléfono | ONNX Runtime para Android, CameraX, SQLite (+ sqlite-vec) para paquetes regionales | Sin conexión; control del rendimiento; es lo que usó Anura (`AnuraIdentifier.kt`) [proyecto] | Solo Android; el modelo (165,6 MB) conviene descargarlo aparte |
+| **React Native, local** | En el teléfono | `onnxruntime-react-native`, una librería de cámara nativa | Un código para Android e iOS; equipo web | El preprocesado debe ser nativo e idéntico; más capas que depurar |
+| **Flutter, local** | En el teléfono | Un plugin de ONNX Runtime para Flutter, `camera` | Un código para dos plataformas; buena interfaz | Plugins de terceros; mismas cautelas de preprocesado |
+| **Cliente + servidor** | En una máquina con GPU | Cualquier app (también web) captura foto, GPS, fecha y notas y las envía por HTTPS a una API (p. ej. FastAPI) con BioCLIP 2.5 | Modelo grande y actualizable sin publicar la app; el móvil es solo la **herramienta de entrada** | Necesita red; latencia; coste del servidor; privacidad de las coordenadas |
+| **Híbrido** | Los dos | BioCLIP 1 local responde al instante; la foto se reenvía al servidor cuando hay red | Funciona en campo y mejora con conexión | Dos modelos y dos contratos de embedding |
+**Cómo elegir [INF]:** ¿habrá conexión donde se toma la foto? Si no, local. ¿El equipo sabe Kotlin, JavaScript o Dart? Usa lo que ya domina. ¿Hace falta el modelo grande (especies muy parecidas, plantas)? Servidor o híbrido. En el caso de trips con laboratorio e internet, el cliente + servidor suele bastar.
+**En cualquier stack:** devolver top-3 con porcentaje, el nivel alcanzado (especie, género, etapa) y cuándo pedir otra foto; validar que el resultado en el móvil es idéntico al de Python con las mismas fotos.
+
+## 41. Individuos frente a fotos; cómo evitar el sobreajuste y el subajuste
+
+### 41.1 Lo que pesa es el número y la variedad de individuos
+| Nivel | Fotos por clase | Individuos por clase | Fuente |
+|---|---|---|---|
+| Mínimo viable (centroide) | 10–15 | 3–5 | [proyecto, reglas de la bóveda] |
+| Recomendado | 30–50 | 8–12 | [proyecto] |
+| Robusto | 80–100+ | 15+ | [proyecto] |
+| Piso para entrar a un paquete (v5) | ≥80 | ≥10 | [proyecto, `reglas.js`] |
+| Identificación con entrenamiento | — | ≥70 | [proyecto] |
+- **Lo que estabiliza el centroide es la variación entre individuos**, no más fotos del mismo animal [proyecto]. 100 fotos de un solo individuo enseñan ese individuo, su fondo y su luz; 20 individuos × 5 fotos enseñan la especie.
+- Con ≥38 individuos, más fotos ya no ayudó: correlación top-1 frente a nº de individuos −0,05 (n=56 especies) [proyecto]. Lo que más explica el error es lo cerca que está la especie vecina (−0,62).
+- Para etapa y sexo vale lo mismo por celda (especie × etapa × sexo, §26).
+
+### 41.2 Sobreajuste y subajuste
+| | Señal | Ejemplo | Remedio |
+|---|---|---|---|
+| **Subajuste** | Error alto en entrenamiento **y** en validación | Zero-shot con nombres que el modelo no conoce; una cabeza demasiado simple | Centroides o capa lineal sobre embeddings; más épocas; LP-FT si hay muchos datos |
+| **Punto justo** | Validación en su mejor valor; entrenamiento y validación cerca | Anura, fase 4: pico de validación 72,7 % en la época 10 [proyecto] | Parada temprana: guarda ese punto |
+| **Sobreajuste** | Entrenamiento sigue bajando, validación sube o se estanca | Anura: pérdida de entrenamiento 0,92 → 0,01 con 28,7 M parámetros y ~2.200 imágenes; test 69,2 % frente a 70,4 % sin entrenar [proyecto] | Congelar el encoder, más individuos (no más fotos del mismo), aumentación moderada, regularización, menos épocas |
+- **La trampa que oculta el sobreajuste:** dividir al azar en vez de por individuo o sitio. Las fotos del mismo animal en train y test inflan la métrica (Fase 13: 100 % de los KNOWN dentro de TRAIN) [proyecto].

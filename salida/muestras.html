@@ -80,11 +80,47 @@ table.tb{border-collapse:collapse;width:100%;font-size:8pt;line-height:1.36;marg
 .chips span{height:20pt;padding:0 10pt;border-radius:99px;display:inline-grid;place-items:center;font:700 6.8pt JBMono,monospace;letter-spacing:.06em;border:1.4pt solid currentColor}
 .titulo{font-family:Aquire,sans-serif;font-weight:700;line-height:.95;margin:0}
 .sub{font-family:Bricolage,sans-serif;font-weight:600;line-height:1.22;margin:0}
-.idx{font-size:9.4pt;line-height:1.5}
-.idx .n1{display:flex;align-items:baseline;gap:6pt;font-weight:700;font-size:10.4pt;margin:10pt 0 2pt}
+.idx{font-size:9pt;line-height:1.42}
+.idx .n1{display:flex;align-items:baseline;gap:6pt;font-weight:700;font-size:10pt;margin:7pt 0 1pt}
 .idx .n2{display:flex;align-items:baseline;gap:6pt;padding-left:22pt}
 .idx .g{flex:1;border-bottom:1pt dotted #777;transform:translateY(-3pt)}
 .idx .num{font:700 7pt JBMono,monospace;width:16pt}
+
+.aprende{display:flex;gap:14pt;align-items:flex-start;background:#0b0d12;color:#fff;border-radius:12pt;padding:11pt 14pt;margin:0 0 15pt;break-inside:avoid}
+.aprende .k{font:700 6.6pt JBMono,monospace;letter-spacing:.08em;color:#dfff04;flex:0 0 70pt;padding-top:2pt}
+.aprende ul{list-style:none;margin:0;padding:0;font-size:9pt;line-height:1.48}
+.aprende li{padding-left:13pt;position:relative;margin:0 0 2pt}
+.aprende li::before{content:"";position:absolute;left:0;top:4.4pt;width:5pt;height:5pt;border:1.3pt solid #dfff04;border-radius:50%}
+.paso{display:grid;grid-template-columns:20pt 1fr;gap:0 8pt;margin:0 0 10pt;break-inside:avoid}
+.paso .nn{font:700 14pt/1 Aquire,sans-serif;padding-top:1pt}
+.paso h3{margin:0 0 2pt}.paso p{margin:0}
+.exp{border:1pt solid #000;border-radius:12pt;padding:9pt 11pt;break-inside:avoid;display:flex;flex-direction:column;gap:4pt;background:#fff}
+.exp .top{display:flex;justify-content:space-between;align-items:center;gap:8pt}
+.exp .q{font:700 6.2pt JBMono,monospace;letter-spacing:.07em;text-transform:uppercase;color:#333}
+.exp h3{margin:0;font-size:10.2pt}
+.exp dl{display:grid;grid-template-columns:52pt 1fr;gap:3pt 6pt;margin:2pt 0 0;font-size:8.4pt;line-height:1.4}
+.exp dt{font:700 6pt/1.9 JBMono,monospace;letter-spacing:.06em;text-transform:uppercase;color:#333}
+.exp dd{margin:0}
+.ver{font:700 6.3pt JBMono,monospace;letter-spacing:.06em;border-radius:99px;padding:3pt 8pt;white-space:nowrap;border:1.2pt solid #000}
+.ver.si{background:#dfff04}.ver.no{background:#000;color:#dfff04;border-color:#000}.ver.medio{background:#fff}
+.cambio{display:grid;grid-template-columns:1fr 24pt 1fr;align-items:stretch;margin:4pt 0 14pt;break-inside:avoid}
+.cambio>div{border-radius:12pt;padding:9pt 11pt;font-size:8.9pt;line-height:1.45}
+.cambio .antes{background:#f1f2f4}.cambio .despues{background:#dfff04;border:.8pt solid #000}
+.cambio small{display:block;font:700 6.3pt JBMono,monospace;letter-spacing:.08em;margin:0 0 3pt}
+.cambio .fl{display:grid;place-items:center;font:700 15pt Bricolage,sans-serif}
+.turno{border-top:2.4pt solid #000;padding-top:8pt;margin-top:6pt;break-inside:avoid}
+.turno .k{font:700 6.6pt JBMono,monospace;letter-spacing:.08em;margin:0 0 5pt}
+.turno ul{list-style:none;margin:0;padding:0;columns:2;column-gap:23pt;font-size:8.9pt;line-height:1.45}
+.turno li{padding-left:15pt;position:relative;margin:0 0 4pt;break-inside:avoid}
+.turno li::before{content:"";position:absolute;left:0;top:2.5pt;width:8pt;height:8pt;border:1.2pt solid #000;border-radius:1.5pt}
+.graf{margin:0 0 13pt;break-inside:avoid}
+.c2+.graf,.c2+.fig,.c2+.exp,.c2+.cambio{margin-top:8pt}
+.graf .gt{font:700 6.6pt JBMono,monospace;letter-spacing:.08em;text-transform:uppercase;margin:0 0 5pt}
+.graf svg.ch{display:block}
+.graf dl{display:grid;grid-template-columns:54pt 1fr;gap:3pt 6pt;margin:6pt 0 0;padding-top:5pt;border-top:.6pt solid #000;font-size:8.2pt;line-height:1.4}
+.graf dt{font:700 5.9pt/1.95 JBMono,monospace;letter-spacing:.06em;text-transform:uppercase;color:#333}
+.graf dd{margin:0}
+.graf dd.en{font-weight:600}
 
 /* --- piezas didácticas --- */
 .aprende{display:flex;gap:14pt;align-items:flex-start;background:#0b0d12;color:#fff;border-radius:12pt;padding:12pt 14pt;margin:0 0 16pt}

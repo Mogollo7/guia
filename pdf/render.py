@@ -13,6 +13,8 @@ CHECK = r"""
   const res = [];
   const pgs = [...document.querySelectorAll('section.pg')];
   const inter = (a, b, t) => a.left < b.right - t && b.left < a.right - t && a.top < b.bottom - t && b.top < a.bottom - t;
+  const bgs = pgs.map(p => p.style.background || '');
+  for (let i = 1; i < pgs.length; i++) if (!bgs[i].includes('255, 255, 255') && !bgs[i-1].includes('255, 255, 255') && i > 1) res.push(`P${i}-P${i+1}: dos hojas de color seguidas`);
   pgs.forEach((pg, i) => {
     const P = pg.getBoundingClientRect();
     const n = i + 1;

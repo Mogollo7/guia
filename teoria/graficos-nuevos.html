@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gráficos nuevos de la guía</title>
+<style>
+@font-face{font-family:Aquire;src:url("fonts/Aquire-BW0ox.otf")}
+:root{--ink:#0b0d12;--lime:#dfff04;--paper:#fff;--g:#8a929c;--gl:#2c3138;--t:#e8eaed;--m:#a3a9b1}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--t);font:14px/1.5 system-ui,sans-serif;padding:24px 16px}
+h1{font:700 28px Aquire,sans-serif;letter-spacing:.04em;text-transform:uppercase;margin:0 0 4px}
+.sub{color:var(--m);font:12px ui-monospace,Consolas,monospace;text-transform:uppercase;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;max-width:1200px}
+.card{background:#12151c;border:1px solid var(--gl);border-radius:16px;padding:16px}
+.card.wide{grid-column:1/-1}
+.card h2{font:700 15px Aquire,sans-serif;letter-spacing:.05em;text-transform:uppercase;margin:0 0 2px}
+.tag{font:11px ui-monospace,Consolas,monospace;color:var(--m);text-transform:uppercase}
+.tag b{color:var(--lime)}
+.cap{color:var(--m);font-size:12px;margin:6px 0 0}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--t);font:11px system-ui,sans-serif}
+svg .mu{fill:var(--m)}
+svg .ax{stroke:var(--gl);stroke-width:1}
+svg .dk{fill:#0b0d12}
+.ilus{outline:1px dashed var(--lime)}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--m);margin-top:6px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+details{margin-top:8px;font-size:12px;color:var(--m)}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid var(--gl);padding:2px 6px;text-align:left}
+</style>
+</head>
+<body>
+<h1>Gráficos nuevos · guía</h1>
+<div class="sub">guia.md §36 · [FUENTE] [CALC] datos leídos · ILUSTRACIÓN = concepto, no datos · SIMULACIÓN = supuesto</div>
+<div class="grid" id="g"></div>
+<svg width="0" height="0"><defs><pattern id="h" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#12151c"/><rect width="2.5" height="6" fill="#dfff04"/></pattern></defs></svg>
+<script>
+const L='#dfff04',G='#8a929c',D='#12151c';
+const f=n=>String(n).replace('.',',');
+function card(o){
+  const d=document.createElement('div');d.className='card'+(o.wide?' wide':'')+(o.ilus?' ilus':'');
+  d.innerHTML=`<h2>${o.id} · ${o.title}</h2><div class="tag">${o.tag}</div>${o.svg}${o.leg?`<div class="leg">${o.leg}</div>`:''}<p class="cap">${o.cap}</p>${o.rows?`<details><summary>Ver tabla</summary><table>${o.rows.map((r,i)=>`<tr>${r.map(c=>i?`<td>${c}</td>`:`<th>${c}</th>`).join('')}</tr>`).join('')}</table></details>`:''}`;
+  document.getElementById('g').appendChild(d);
+}
+const T=(x,y,s,a='middle',c='')=>`<text x="${x}" y="${y}" text-anchor="${a}" ${c?`class="${c}"`:''}>${s}</text>`;
+const leg2=(a,b)=>`<span><i style="background:${L}"></i>${a}</span><span><i style="background:${G}"></i>${b}</span>`;
+
+// G1 · línea de vida del trips
+(function(){
+  const W=760,H=330,x0=40,sc=62;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  const st=[['HUEVO',3.07,'dentro del tejido','casi nunca en foto',G,0],['LARVA I',1.78,'planta','macro: sí',L,1],['LARVA II',2.38,'planta','macro: sí',L,1],['PREPUPA',1.00,'suelo','difícil',G,0],['PUPA',2.04,'suelo u hojarasca','difícil',G,0]];
+  s+=T(x0,22,'DURACIÓN POR ESTADIO A 27 °C (días) · UF/IFAS, repollo','start','mu');
+  let x=x0;
+  st.forEach(a=>{const w=a[1]*sc;
+    s+=`<rect x="${x}" y="34" width="${w-3}" height="50" rx="6" fill="${a[4]}"/>`;
+    s+=`<text x="${x+(w-3)/2}" y="54" text-anchor="middle" font-weight="700" fill="#0b0d12" style="fill:#0b0d12">${a[0]}</text><text x="${x+(w-3)/2}" y="72" text-anchor="middle" style="fill:#0b0d12">${f(a[1])} d</text>`;
+    s+=T(x+(w-3)/2,100,a[2],'middle','mu')+T(x+(w-3)/2,114,a[3],'middle','mu');
+    x+=w;});
+  s+=`<path d="M${x0} 128H${x-3}M${x0} 122V134M${x-3} 122V134" stroke="#fff" fill="none"/>`+T((x0+x-3)/2,148,'huevo → adulto: 10,2 días (cifra de la fuente; la suma de estadios da 10,27)');
+  // temp bars
+  s+=T(x0,190,'CICLO HUEVO → HUEVO POR TEMPERATURA (días) · EPPO','start','mu');
+  const tb=[['15 °C',44.1],['20 °C',22.4],['25 °C',18.2],['30 °C',15]];
+  tb.forEach((b,i)=>{const y=202+i*26,w=b[1]*12;s+=T(x0+36,y+14,b[0],'end')+`<rect x="${x0+44}" y="${y}" width="${w}" height="18" rx="4" fill="${i==3?L:G}"/>`+T(x0+50+w,y+14,f(b[1]),'start');});
+  s+=T(x0+520,236,'Más calor, ciclo más corto.','start','mu')+T(x0+520,252,'No mezclar con la cinta de arriba:','start','mu')+T(x0+520,266,'miden cosas distintas.','start','mu');
+  card({id:'G1',title:'Línea de vida del trips',tag:'[FUENTE] <b>F. occidentalis</b> · EPPO y UF/IFAS IN1089',svg:s+'</svg>',wide:1,leg:leg2('Se ve en foto con macro (larvas y adulto)','Oculto en tejido o suelo (huevo, prepupa, pupa)'),
+  cap:'El adulto no está en la cinta porque no tiene duración fija en las fuentes. Las duraciones son de repollo a 27 °C: en crisantemo en Colombia se reportó prepupa de 4 a 6 días y pupa de 3 a 5 (laboratorio, resumen de búsqueda); no se mezclan.',
+  rows:[['Estadio','Días'],['Huevo','3,07'],['Larva I','1,78'],['Larva II','2,38'],['Prepupa','1,00'],['Pupa','2,04'],['Huevo→adulto','10,2'],['Huevo→huevo 15 / 20 / 25 / 30 °C','44,1 / 22,4 / 18,2 / 15']]});
+})();
+
+// G2 · especie × etapa × sexo
+(function(){
+  const W=760,H=330;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  const et=['HUEVO','LARVA I','LARVA II','PREPUPA','PUPA','ADULTO'],sx=['INDIFERENCIADO','MACHO','HEMBRA'];
+  const x0=110,y0=50,cw=120,ch=38;
+  sx.forEach((a,j)=>s+=T(x0+j*cw+cw/2-4,y0-12,a,'middle','mu'));
+  et.forEach((e,i)=>{s+=T(x0-10,y0+i*ch+ch/2+4,e,'end');
+    sx.forEach((a,j)=>{const ad=i==5,ok=ad?j>0:j==0,x=x0+j*cw,y=y0+i*ch;
+      const sca=(i==0||i==3||i==4);
+      s+=`<rect x="${x}" y="${y}" width="${cw-6}" height="${ch-6}" rx="6" fill="${ok?(sca?'#1a1e26':L):'#1a1e26'}" ${ok&&sca?`stroke="${L}" stroke-dasharray="5 3"`:''}/>`;
+      if(ok)s+=T(x+cw/2-3,y+ch/2+4,ad?'centroide propio':(sca?'pocas fotos':'etapa sin sexo'),'middle',sca?'':'dk');});});
+  // right: head panel
+  const px=500;
+  s+=T(px,y0-12,'UN VECTOR → CABEZAS POR PREGUNTA','start','mu');
+  s+=`<rect x="${px}" y="${y0}" width="220" height="40" rx="8" fill="${G}"/>`+`<text x="${px+110}" y="${y0+25}" text-anchor="middle" style="fill:#0b0d12" font-weight="700">VECTOR DEL ENCODER (congelado)</text>`;
+  ['TAXÓN','ETAPA','SEXO'].forEach((c,i)=>{const x=px+i*76;s+=`<path d="M${px+110} ${y0+40}L${x+32} ${y0+86}" stroke="#8a929c"/><rect x="${x}" y="${y0+86}" width="64" height="34" rx="8" fill="${L}"/><text x="${x+32}" y="${y0+108}" text-anchor="middle" style="fill:#0b0d12" font-weight="700">${c}</text>`;});
+  s+=T(px,y0+150,'Salud y calidad: cabezas aparte (opcional).','start','mu')+T(px,y0+166,'Si hay &lt;3 individuos en una celda,','start','mu')+T(px,y0+182,'se presta el centroide global (Anura).','start','mu');
+  s+=T(x0,H-18,'Borde discontinuo = celda con pocas fotos esperables (hipótesis, §32.1). El macho y la hembra se separan solo en el adulto.','start','mu');
+  card({id:'G2',title:'Especie × etapa × sexo',tag:'<b>ILUSTRACIÓN</b> · esquema de §26 aplicado al trips',svg:s+'</svg>',wide:1,ilus:1,
+  cap:'Una sola etiqueta «especie» mezcla apariencias muy distintas; un centroide por especie queda en el medio y no representa a ninguna. Aquí cada celda es una subclase con su propio prototipo. Es un esquema, no resultados.'});
+})();
+
+// G3 · fine-tuning vs congelado
+(function(){
+  const W=360,H=250,PL=40,PT=24,PB=44,w=W-PL-16,h=H-PT-PB;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  [0,50,100].forEach(v=>{const y=PT+h-h*v/100;s+=`<line class="ax" x1="${PL}" x2="${W-16}" y1="${y}" y2="${y}"/>`+T(PL-6,y+4,v,'end','mu');});
+  const grp=[['FT',85.1,59.3],['LP',82.9,66.2],['LP-FT',85.7,68.9]],gw=w/3;
+  grp.forEach((g,i)=>{[0,1].forEach(k=>{const v=g[1+k],x=PL+gw*i+gw*.12+k*gw*.38,bw=gw*.34,bh=h*v/100,y=PT+h-bh;
+    s+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="4" fill="${k?L:G}"/>`+T(x+bw/2,y-4,f(v),'middle');});
+    s+=T(PL+gw*i+gw/2,H-26,g[0],'middle','mu');});
+  card({id:'G3a',title:'Ajuste fino frente a lineal',tag:'[FUENTE] Kumar et al. 2022 · medias de 3 ejecuciones',svg:s+'</svg>',leg:leg2('Fuera de distribución (media de 10)','Dentro de distribución (media de 6)').replace(/(<span>.*?<\/span>)(<span>.*?<\/span>)/,'$2$1'),
+  cap:'FT = ajuste fino completo; LP = solo capa lineal; LP-FT = primero lineal, luego todo. El ajuste completo gana 2,2 puntos dentro pero pierde 6,9 fuera frente a LP; LP-FT es el mejor en ambos.',
+  rows:[['Método','ID %','OOD %'],['FT','85,1','59,3'],['LP','82,9','66,2'],['LP-FT','85,7','68,9']]});
+  // Anura
+  let a=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  [0,50,100].forEach(v=>{const y=PT+h-h*v/100;a+=`<line class="ax" x1="${PL}" x2="${W-16}" y1="${y}" y2="${y}"/>`+T(PL-6,y+4,v,'end','mu');});
+  [['SIN ENTRENAR',70.4,1],['AJUSTE FINO',69.2,0]].forEach((b,i)=>{const bw=70,x=PL+30+i*140,bh=h*b[1]/100,y=PT+h-bh;a+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="4" fill="${b[2]?L:G}"/>`+T(x+bw/2,y-4,f(b[1])+'%','middle')+T(x+bw/2,H-26,b[0],'middle','mu');});
+  card({id:'G3b',title:'Anura: congelado frente a ajuste fino',tag:'[Parte A] 28 especies · test · BioCLIP 1',svg:a+'</svg>',
+  cap:'El ajuste fino no mejoró el top-1 (−1,2 pp) y memorizó: pérdida de entrenamiento 0,92 → 0,01 con ~2.200 imágenes. Con Albumentations mal normalizada cayó a 19,7 %. Decisión del usuario: encoder congelado.',
+  rows:[['Variante','Top-1 %'],['Sin entrenar (k-NN)','70,4'],['Ajuste fino v1','69,2'],['Ajuste fino con Albumentations','19,7']]});
+})();
+
+// G4 · escalera de pocas imágenes
+(function(){
+  const W=760,H=360;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  const st=[['1–10 fotos por clase','Vectores congelados + centroide o kNN; zero-shot de línea base','BioCLIP 1, media de 10 tareas: 1 foto 50,3 · 5 fotos 68,8'],
+   ['10–70 fotos','Lo anterior + aumentación moderada (solo train, al vuelo)','Matiz ≤ ±10: el color es diagnóstico'],
+   ['Clases desbalanceadas','Oversampling con aumentación agresiva solo en repeticiones; pesos de raíz cuadrada','Umbral de Anura: <70 individuos'],
+   ['Faltan variantes difíciles','CutMix, RandomErasing, copy-paste','No mezclar entre especies del mismo género'],
+   ['Faltan fotos de verdad','Fuentes públicas y fotos propias con protocolo; fusionar etapas (larva, prepupa-pupa)','Las etapas casi nunca vienen etiquetadas'],
+   ['Último recurso','Imágenes sintéticas (difusión), nunca en val ni test','Evidencia débil: ~14 % sobre 50 clases de iNaturalist']];
+  st.forEach((a,i)=>{const y=14+i*56,x=24+i*34;
+    s+=`<rect x="${x}" y="${y}" width="${W-x-20}" height="48" rx="8" fill="${i==0?L:'#1a1e26'}" stroke="${i==0?L:'#2c3138'}"/>`;
+    const c=i==0?'style="fill:#0b0d12"':'';
+    s+=`<text x="${x+12}" y="${y+20}" font-weight="700" ${c}>${i+1} · ${a[0]}</text><text x="${x+12}" y="${y+38}" ${c}>${a[1]}</text>`;
+    s+=T(W-30,y+20,a[2],'end',i==0?'':'mu').replace('<text',i==0?'<text style="fill:#0b0d12"':'<text');});
+  card({id:'G4',title:'Escalera si no hay suficientes imágenes',tag:'<b>ILUSTRACIÓN</b> con cifras de BioCLIP 1 [FUENTE] · de lo barato a lo costoso',svg:s+'</svg>',wide:1,ilus:1,
+  cap:'Se baja un peldaño solo si el anterior no alcanza el objetivo de métrica. Reglas de §30.2; las cifras citadas son del paper de BioCLIP, no de trips.'});
+})();
+
+// G5 · escala del prior
+(function(){
+  const W=360,H=250,PL=40,PT=20,PB=40,w=W-PL-16,h=H-PT-PB;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  const Y=v=>PT+h-h*(v-0)/1.6,X=u=>PL+w*u;
+  [0.5,1,1.5].forEach(v=>{s+=`<line class="ax" x1="${PL}" x2="${W-16}" y1="${Y(v)}" y2="${Y(v)}" ${v!=1?'stroke-dasharray="4 4"':''}/>`+T(PL-6,Y(v)+4,f(v),'end','mu');});
+  const curve=(sig,amp)=>{let p='';for(let i=0;i<=100;i++){const u=i/100,g=Math.exp(-((u-.5)**2)/(2*sig*sig)),v=.5+g*amp;p+=(i?'L':'M')+X(u).toFixed(1)+' '+Y(v).toFixed(1);}return p;};
+  s+=`<path d="${curve(.07,1.0)}" stroke="${L}" stroke-width="2.5" fill="none"/><path d="${curve(.28,.5)}" stroke="${G}" stroke-width="2.5" fill="none"/>`;
+  s+=T(X(.5)+10,PT+4,'endémica: estrecha y fuerte','start')+T(X(.97),Y(.62),'amplia: ancha y débil','end','mu');
+  s+=T(W/2,H-8,'distancia o altitud respecto al centro de sus observaciones →','middle','mu')+`<text x="6" y="12" class="mu">multiplicador del prior</text>`;
+  card({id:'G5',title:'Escala del prior por especie',tag:'<b>ILUSTRACIÓN</b> · curvas gaussianas supuestas; multiplicador acotado 0,5–1,5 (§29.2)',svg:s+'</svg>',ilus:1,leg:leg2('Especie endémica (poca dispersión)','Especie amplia (mucha dispersión)'),
+  cap:'La anchura la define la dispersión real de las observaciones de cada especie, no un valor fijo. El multiplicador nunca baja de 0,5 ni sube de 1,5: reordena candidatas y jamás elimina una especie. No son resultados medidos.'});
+})();
+
+// G6 · árbol taxonómico
+(function(){
+  const W=360,H=330;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  const r=['REINO','FILO','CLASE','ORDEN','FAMILIA','GÉNERO','ESPECIE'],a=['Animalia','Chordata','Amphibia','Anura','Bufonidae','Rhinella','R. marina'],p=['Plantae','Tracheophyta','Liliopsida','Poales','Poaceae','Zea','Zea mays'];
+  r.forEach((e,i)=>{const y=14+i*44;
+    s+=T(68,y+22,e,'end','mu')+`<rect x="80" y="${y}" width="130" height="34" rx="8" fill="${i==6?L:G}"/><text x="145" y="${y+22}" text-anchor="middle" style="fill:#0b0d12" font-weight="${i==6?700:400}">${a[i]}</text>`+
+    `<rect x="220" y="${y}" width="130" height="34" rx="8" fill="#1a1e26" stroke="#2c3138"/>`+T(285,y+22,p[i],'middle');
+    if(i<6)s+=`<path d="M145 ${y+34}V${y+44}M285 ${y+34}V${y+44}" stroke="#8a929c"/>`;});
+  s+=T(145,H-4,'RANA','middle','mu')+T(285,H-4,'PLANTA','middle','mu');
+  card({id:'G6',title:'Árbol taxonómico: 7 rangos',tag:'[FUENTE] ejemplos de §11.1 · BioCLIP usa la cadena completa en el texto',svg:s+'</svg>',
+  cap:'De lo general a lo particular. El texto del documento original omitía filo, clase y orden. BioCLIP no devuelve los siete rangos por sí solo: en Anura, género y familia salen de supercentroides.'});
+})();
+
+// G7 · pipeline
+(function(){
+  const W=760,H=190;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  const p=['ALCANCE','DATOS','DIVISIÓN','LÍNEA BASE','EVALUAR','EXPORTAR','CAMPO','INTERFAZ'],d=['especies, región, móvil o web','fuente y licencia por imagen','por observación, no al azar','congelado + vecino cercano','top-1, top-5, F1, matriz','ONNX, fp16, medir latencia','fotos nuevas, no solo test','3 mejores y aviso de límite'];
+  p.forEach((e,i)=>{const x=10+(i%4)*186,y=i<4?14:104;
+    s+=`<rect x="${x}" y="${y}" width="172" height="74" rx="10" fill="${i==3?L:'#1a1e26'}" stroke="${i==3?L:'#2c3138'}"/>`;
+    const c=i==3?'style="fill:#0b0d12"':'';
+    s+=`<text x="${x+12}" y="${y+24}" font-weight="700" ${c}>${i+1} · ${e}</text><text x="${x+12}" y="${y+46}" ${c}>${d[i]}</text>`;
+    if(i%4<3)s+=`<path d="M${x+172} ${y+37}h14" stroke="#8a929c"/>`;});
+  s+=`<path d="M${10+3*186+86} 88v8" stroke="#8a929c"/>`;
+  card({id:'G7',title:'Pipeline de referencia',tag:'§1.6 · ocho pasos',svg:s+'</svg>',wide:1,
+  cap:'Resaltado: la línea base sin entrenar. Se mide antes de construir nada (lección 1 de Anura).'});
+})();
+
+// G8 · laboratorio frente a campo
+(function(){
+  const W=360,H=250,PL=40,PT=24,PB=44,w=W-PL-16,h=H-PT-PB;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  [0,50,100].forEach(v=>{const y=PT+h-h*v/100;s+=`<line class="ax" x1="${PL}" x2="${W-16}" y1="${y}" y2="${y}"/>`+T(PL-6,y+4,v,'end','mu');});
+  [['LABORATORIO',99.35,1],['CAMPO 1 (n=121)',31.40,0],['CAMPO 2 (n=119)',31.69,0]].forEach((b,i)=>{const bw=62,x=PL+20+i*100,bh=h*b[1]/100,y=PT+h-bh;s+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="4" fill="${b[2]?L:G}"/>`+T(x+bw/2,y-4,b[1].toFixed(2).replace('.',',')+'%','middle')+T(x+bw/2,H-26,b[0],'middle','mu');});
+  card({id:'G8',title:'Laboratorio frente a campo',tag:'[FUENTE] Mohanty 2016 · PlantVillage 54.306 imágenes, 38 clases',svg:s+'</svg>',leg:leg2('Test retenido de laboratorio','Imágenes tomadas en otras condiciones'),
+  cap:'Un modelo de enfermedades de plantas con 99,35 % en su test baja a ~31 % con fotos externas. Nunca confíes en un test que comparte condiciones con el entrenamiento.',
+  rows:[['Condición','Exactitud %'],['Test retenido','99,35'],['Externo 1 (n=121)','31,40'],['Externo 2 (n=119)','31,69']]});
+})();
+
+// G9 · Gosner y BBCH
+(function(){
+  const W=760,H=250;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  const x0=20,u=(W-40)/46;
+  s+=T(x0,16,'GOSNER (1960): 46 ESTADIOS DE ANURO','start','mu');
+  const gs=[[1,25,'EMBRIONARIA','',G],[26,30,'26–30','esbozo',L],[31,37,'31–37','dedos',L],[38,40,'38–40','tubérc.',L],[41,41,'41','',G],[42,46,'42–46','metam.',G]];
+  gs.forEach(g=>{const x=x0+(g[0]-1)*u,w=(g[1]-g[0]+1)*u-2;s+=`<rect x="${x}" y="26" width="${w}" height="44" rx="5" fill="${g[4]}"/><text x="${x+w/2}" y="46" text-anchor="middle" style="fill:#0b0d12" font-weight="700" font-size="10">${g[2]}</text><text x="${x+w/2}" y="61" text-anchor="middle" style="fill:#0b0d12" font-size="10">${g[3]}</text>`;});
+  s+=T(x0,92,'1','start','mu')+T(x0+25*u,92,'25: empieza a alimentarse','middle','mu')+T(W-20,92,'46','end','mu');
+  s+=T(x0,118,'Lima = estadios 26–40: la mejor ventana para fijar etapa en foto; 21–25 son «difíciles para la identificación de especies».','start','mu');
+  s+=T(x0,152,'BBCH (Meier 2001): 10 ESTADIOS PRINCIPALES DE PLANTA','start','mu');
+  const bb=['0 Germinac.','1 Hojas','2 Brotes lat.','3 Elongac.','4 Cosechable','5 Inflor.','6 Floración','7 Fruto','8 Maduración','9 Senescen.'],bw=(W-40)/10;
+  bb.forEach((b,i)=>{const x=x0+i*bw;s+=`<rect x="${x}" y="162" width="${bw-4}" height="44" rx="5" fill="${i==6?L:'#1a1e26'}" stroke="${i==6?L:'#2c3138'}"/>`+`<text x="${x+(bw-4)/2}" y="180" text-anchor="middle" font-weight="700" ${i==6?'style="fill:#0b0d12"':''}>${b.split(' ')[0]}</text><text x="${x+(bw-4)/2}" y="196" text-anchor="middle" font-size="10" ${i==6?'style="fill:#0b0d12"':''}>${b.split(' ').slice(1).join(' ')}</text>`;});
+  s+=T(x0,230,'Primer dígito = estadio principal, segundo = secundario. Base: código de cereales de Zadoks.','start','mu');
+  card({id:'G9',title:'Escalas de etapa: Gosner y BBCH',tag:'[FUENTE] Gosner 1960 y Meier 2001, leídos en el original',svg:s+'</svg>',wide:1,
+  cap:'Las escalas dan nombre común a la etapa para etiquetar. El rango de Gosner 26–40 se agrupa en el original por el miembro posterior; la agrupación «dedos 31–41» del encargo era aproximada.'});
+})();
+
+// G10 · cómputo de BioCLIP
+(function(){
+  const W=360,H=250,PL=44,PT=24,PB=62,w=W-PL-16,h=H-PT-PB,max=350;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  [0,175,350].forEach(v=>{const y=PT+h-h*v/max;s+=`<line class="ax" x1="${PL}" x2="${W-16}" y1="${y}" y2="${y}"/>`+T(PL-6,y+4,v,'end','mu');});
+  [['BIOCLIP 1','ViT-B/16',35.13,86.19,0],['BIOCLIP 2','ViT-L/14',162.03,303.97,0],['BIOCLIP 2.5','ViT-H/14',334.59,632.08,1]].forEach((b,i)=>{const bw=64,x=PL+22+i*100,bh=h*b[2]/max,y=PT+h-bh;
+    s+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="4" fill="${b[4]?L:G}"/>`+T(x+bw/2,y-4,f(Math.round(b[2]*10)/10),'middle')+T(x+bw/2,H-36,b[0],'middle','mu')+T(x+bw/2,H-23,b[1],'middle','mu')+T(x+bw/2,H-10,f(Math.round(b[3]))+' M par.','middle','mu');});
+  card({id:'G10',title:'Cómputo de la torre de imagen',tag:'[FUENTE] perfil de OpenCLIP, 224 px · conteo para BioCLIP = [INF]',svg:s+'</svg>',
+  cap:'GFLOPs de la torre de imagen y parámetros. De B/16 a H/14 el cómputo se multiplica por ~9,5. No se verificó si la columna cuenta FLOPs o MACs. En fp16 el modelo completo de 2.5 pesa ~2 GB, frente a ~0,3 GB de BioCLIP 1 [CALC].',
+  rows:[['Modelo','GFLOPs imagen','Params imagen (M)','GFLOPs total','Params total (M)'],['BioCLIP 1 (ViT-B/16)','35,13','86,19','41,09','149,62'],['BioCLIP 2 (ViT-L/14)','162,03','303,97','175,33','427,62'],['BioCLIP 2.5 (ViT-H/14)','334,59','632,08','381,68','986,11']]});
+})();
+
+// G11 · taxones del modelo de iNaturalist
+(function(){
+  const W=360,H=250,PL=44,PR=16,PT=24,PB=34,w=W-PL-PR,h=H-PT-PB;let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  const d=[['2.19',99545],['2.20',100350],['2.21',101374],['2.22',103765],['2.23',106407],['2.24',108124],['2.25',109680],['2.26',111435]],lo=95000,hi=115000;
+  const X=i=>PL+w*i/(d.length-1),Y=v=>PT+h-h*(v-lo)/(hi-lo);
+  [95000,105000,115000].forEach(v=>{s+=`<line class="ax" x1="${PL}" x2="${W-PR}" y1="${Y(v)}" y2="${Y(v)}"/>`+T(PL-6,Y(v)+4,String(v/1000).replace('.',',')+' mil','end','mu');});
+  s+=`<path d="${d.map((p,i)=>(i?'L':'M')+X(i)+' '+Y(p[1])).join('')}" stroke="${L}" stroke-width="2" fill="none"/>`;
+  d.forEach((p,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(p[1])}" r="3.5" fill="${L}"/>`+T(X(i),H-14,p[0],'middle','mu');});
+  s+=T(X(7),Y(111435)-9,'111.435','end');
+  card({id:'G11',title:'Taxones del modelo de visión de iNaturalist',tag:'[FUENTE] blogs de iNaturalist, 2025 (resumen de búsqueda)',svg:s+'</svg>',
+  cap:'El eje no empieza en cero para ver el crecimiento. Un taxón entra con ~100 fotos y 60 observaciones. Probablemente ya haya una versión posterior a la 2.26 (octubre de 2026) [INF].',
+  rows:[['Versión','Taxones'],...d.map(x=>[x[0],String(x[1]).replace(/\B(?=(\d{3})+(?!\d))/g,'.')])]});
+})();
+</script>
+</body>
+</html>

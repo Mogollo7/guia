@@ -90,3 +90,9 @@ Respeta las reglas de la sección 3 de CONTINUAR.md sin reabrirlas. No inventes 
 
 Voy a darte más información (stack, md a leer, datos). Cuando te la pase: 1) léela entera, 2) añade lo nuevo a anura-hallazgos.md o guia.md según corresponda, 3) dime qué datos siguen faltando y qué imágenes, mockups o gráficos necesitas. Si algo depende de un archivo que no encuentres, pregúntame la ruta antes de suponer.
 ```
+
+## 10. Actualización 2026-10-15 (sesión en la nube, repo `Mogollo7/guia`)
+- `guia.md` tiene ahora **Parte 5** (§35 vacíos cerrados, §36 lista de gráficos, §37 insectos por contexto) y §34 con el estado real de los pendientes.
+- `graficos-nuevos.html` (G1–G11) dibuja los gráficos que faltaban, con la marca ILUSTRACIÓN o SIMULACIÓN donde no son datos.
+- `imagenes/LEEME.md` lista lo que hay y lo que falta; `creditos.csv` incluye *R. horribilis*.
+- **Siguiente paso:** el usuario dará la orden de organizar el PDF con la identidad visual (`identidad.html`, `inner-corner-layout.html`, artefacto Notas Lima HUD) siguiendo la tabla de §33 y `PROMPT_PDF.md`.

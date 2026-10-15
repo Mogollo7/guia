@@ -63,9 +63,10 @@ hoja(titulo("Elegir el rango taxonómico") +
             "Mide el rechazo del grupo antes que el de la especie.", "En trips: orden fácil (alas con flecos, &lt;2 mm); especie, no."]),
      "Elegir el rango taxonómico")
 
-verde("01", "Devuelve solo el nivel que la evidencia sostiene.",
-      "<p>«Familia Hylidae, género probable <i>Boana</i>, especie no determinable» vale más que un nombre de especie equivocado.</p>"
-      "<p>En Anura, 27 de 28 especies con pocos datos quedaron cubiertas a nivel de género o familia. El rescate vino de la taxonomía, no de inflar los datos.</p>", 71,
+verde("01", "Devuelve solo el nivel que la evidencia sostiene.", "27/28",
+      "especies con pocos datos quedaron cubiertas a nivel de género o familia en Anura.",
+      "«Familia Hylidae, género probable <i>Boana</i>, especie no determinable» vale más que un nombre de especie equivocado.",
+      "Define niveles (especie, género, familia) con un umbral para cada uno, y muestra el nivel alcanzado.", 71,
       boca="Bajar de rango no es fallar: es decir la verdad.")
 
 hoja(titulo("Una especie no es una sola apariencia") +
@@ -168,9 +169,10 @@ hoja(titulo("Fine-tuning o congelado") +
      cambio("Ajustar BioCLIP con las fotos del proyecto.", "Encoder <b>congelado</b>; añadir una especie es calcular un vector."),
      "Fine-tuning o congelado")
 
-verde("02", "Usa BioCLIP congelado por defecto y ajusta solo si demuestras que hace falta.",
-      "<p>La medición propia dice que el ajuste no mejora el top-1 y memoriza. La literatura lo respalda: el ajuste completo rinde peor fuera de distribución.</p>"
-      "<p>Regla: ajuste fino completo solo con más de 500 imágenes por clase y buen equilibrio.</p>", 77,
+verde("02", "Usa BioCLIP congelado por defecto. Ajusta solo si demuestras que hace falta.", "−1,2 pp",
+      "perdió el modelo ajustado frente al encoder sin entrenar (70,4 → 69,2 %, 28 especies).",
+      "Con pocas fotos por especie el ajuste memoriza (pérdida 0,92 → 0,01) y rinde peor fuera de distribución.",
+      "Empieza con embeddings congelados y centroides. Ajusta solo con más de 500 imágenes por clase; primero la capa lineal.", 77,
       boca="Congelado también es más barato: no necesitas GPU para mantenerlo.")
 
 hoja(titulo("Ruta de método, paso 0 a 5") +
@@ -265,9 +267,10 @@ hoja(titulo("Individuos frente a fotos") +
      turno(["Pide variedad: animales, sitios, luces y fondos distintos.", "Cuenta individuos por celda (especie × etapa × sexo)."]),
      "Individuos frente a fotos")
 
-verde("03", "Más individuos distintos valen más que más fotos del mismo.",
-      "<p>100 fotos de un animal enseñan ese animal. 20 individuos × 5 fotos enseñan la especie.</p>"
-      "<p>Y divide siempre por individuo: si el mismo animal está en entrenamiento y en prueba, la métrica miente.</p>", 57,
+verde("03", "Más individuos distintos valen más que más fotos del mismo.", "−0,05",
+      "correlación entre acierto y número de individuos a partir de 38 (56 especies).",
+      "100 fotos de un animal enseñan ese animal, su fondo y su luz. 20 individuos × 5 fotos enseñan la especie.",
+      "Pide variedad (animales, sitios, luces) y divide siempre por individuo: si el mismo animal está en train y en test, la métrica miente.", 57,
       boca="En la Fase 13 de Anura, el 100 % del test ya estaba en el entrenamiento.")
 
 hoja(titulo("Sobreajuste y subajuste") +
@@ -373,9 +376,10 @@ hoja(titulo("Quitar el fondo: lo que se probó") +
      cambio("El clasificador veía la rana recortada y con fondo negro.", "Ve la imagen completa; la segmentación solo <b>explica</b> después."),
      "Quitar el fondo")
 
-verde("04", "Mide antes de construir.",
-      "<p>En Anura, la línea base sin entrenar (70,4 %) le ganó al modelo ajustado (69,2 %), y la foto completa le ganó al recorte. Esos números costaban una tarde; construir lo otro costó semanas.</p>"
-      "<p><b style=\"color:#dfff04\">Qué puedes hacer:</b> calcula embeddings con BioCLIP y compara cada foto con el promedio de su especie antes de entrenar nada.</p>", 61,
+verde("04", "Mide antes de construir.", "70,4 %",
+      "acertó la línea base sin entrenar; el modelo ajustado se quedó en 69,2 %.",
+      "Ese número costaba una tarde; construir el ajuste y la segmentación costó semanas, y ninguno mejoró el resultado.",
+      "Antes de entrenar, calcula embeddings con BioCLIP y compara cada foto con el promedio de su especie.", 61,
       boca="Si la línea base ya alcanza tu objetivo, no entrenes.")
 
 hoja(titulo("Rechazar lo que no conoce") +
@@ -490,10 +494,11 @@ hoja(titulo("Especies casi idénticas") +
             "Avisa al usuario cuando la respuesta cae en un par.", "Pide el dato que desempata: otra foto, el canto, el lugar."]),
      "Especies casi idénticas")
 
-verde("05", "El contexto reordena candidatas. Nunca decide solo.",
-      "<p>En Anura, un prior sin acotar volteó una <i>D. bogerti</i> bien identificada a <i>D. truncatus</i>, con una razón de prior de casi 5 veces.</p>"
-      "<p>Desde entonces la especie oficial sale del voto visual, y el lugar solo cambia el orden y el porcentaje.</p>", 43,
-      boca="Los registros más valiosos son los que aparecen donde no se esperaba.")
+verde("05", "El contexto reordena candidatas. Nunca decide solo.", "≈5×",
+      "multiplicó el prior a <i>D. truncatus</i> y volteó una <i>D. bogerti</i> bien identificada.",
+      "Un prior sin límite puede ganarle a una foto clara. Los registros más valiosos son los que aparecen donde no se esperaba.",
+      "Acota el prior entre 0,5 y 1,5, deja que la especie oficial salga de la imagen y comprueba que el prior no voltea aciertos.", 43,
+      boca="El lugar cambia el orden y el porcentaje, no el veredicto.")
 
 hoja(titulo("Etapa, sexo y edad") +
      '<p class="lead">La etapa tiene escalas estándar para etiquetar; el sexo depende de la especie; la edad casi nunca sale de una foto.</p>' +
@@ -604,9 +609,10 @@ hoja(titulo("Identificar un trips cuando la foto no basta") +
      cambio("«Trips en crisantemo de Antioquia» = <i>F. occidentalis</i>.", "Especie por microscopio; foto para etapa y género; contexto solo para ordenar."),
      "Identificar por contexto")
 
-verde("06", "La foto da la etapa y el género. La especie la confirma el microscopio.",
-      "<p>El contexto (cultivo, sitio, trampa, tipo de daño) reordena candidatos, pero nunca decide solo.</p>"
-      "<p>Etiqueta la variación dentro de la especie: sexo, forma de color y etapa. Es lo que más confunde a un clasificador visual.</p>", 99,
+verde("06", "La foto da la etapa y el género. La especie la confirma el microscopio.", "0",
+      "fuentes encontradas que identifiquen la especie de un trips por foto.",
+      "Las especies se separan por setas y por el peine del segmento VIII, que solo se ven en lámina al microscopio.",
+      "Haz el modelo de etapa independiente de la especie y etiqueta la especie solo con confirmación de laboratorio.", 99,
       boca="Pequeño y pálido puede ser un macho, no otra especie.")
 
 hoja(titulo("De la etapa al manejo") +
@@ -662,9 +668,10 @@ hoja(titulo("Cómo decidir y qué vale en cualquier stack") +
      bocadillo("Antes de publicar, pasa las mismas fotos por Python y por el teléfono: deben dar exactamente lo mismo.", expresion="alerta", forma="flor"),
      "Cómo decidir el stack")
 
-verde("07", "No es un diagnóstico. Es una sugerencia con su nivel de confianza.",
-      "<p>Enfermedad, edad y sexo dudosos se devuelven como «compatible con…». Nunca uses una foto para decidir si un hongo se come.</p>"
-      "<p>Oculta las coordenadas de especies amenazadas y avisa a la autoridad las enfermedades de notificación obligatoria.</p>", 55,
+verde("07", "No es un diagnóstico. Es una sugerencia con su nivel de confianza.", "49 %",
+      "acertó la mejor de tres apps de hongos; confundió <i>Amanita phalloides</i>.",
+      "Una foto muestra síntomas, no la causa; y un error puede costar caro.",
+      "Devuelve «compatible con…», nunca uses una foto para decidir si algo se come y oculta las coordenadas de especies amenazadas.", 55,
       boca="Un falso conocido contamina la ciencia; un falso desconocido solo molesta.")
 
 hoja(titulo("Varias preguntas a la vez y saber decir «no sé»") +

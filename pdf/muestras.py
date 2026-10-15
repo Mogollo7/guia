@@ -114,9 +114,10 @@ hoja(titulo("Lo que funcionó y lo que no") +
      None)
 
 # ---------------- 5 · divisor verde ----------------
-verde("01", "Mide antes de construir.",
-      "<p>En Anura, la línea base sin entrenar (70,4 %) le ganó al modelo ajustado (69,2 %). Ese número costaba una tarde; construir el ajuste costó semanas.</p>"
-      "<p><b style=\"color:#dfff04\">Qué puedes hacer:</b> antes de entrenar, calcula embeddings con BioCLIP y compara cada foto con el promedio de su especie.</p>", 71,
+verde("01", "Mide antes de construir.", "70,4 %",
+      "acertó la línea base sin entrenar; el modelo ajustado se quedó en 69,2 %.",
+      "Ese número costaba una tarde; construir el ajuste y la segmentación costó semanas, y ninguno mejoró el resultado.",
+      "Antes de entrenar, calcula embeddings con BioCLIP y compara cada foto con el promedio de su especie.", 61,
       boca="Si la línea base ya alcanza tu objetivo, no entrenes.")
 
 # ---------------- salida ----------------

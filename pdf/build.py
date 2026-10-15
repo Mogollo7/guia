@@ -96,6 +96,12 @@ table.tb{border-collapse:collapse;width:100%;font-size:8pt;line-height:1.36;marg
 /* aperturas, verdes, portada */
 .chips{display:flex;gap:6pt;flex-wrap:wrap}
 .chips span{height:20pt;padding:0 10pt;border-radius:99px;display:inline-grid;place-items:center;font:700 6.8pt JBMono,monospace;letter-spacing:.06em;border:1.4pt solid currentColor}
+.pc-chip{display:flex;align-items:center;gap:8pt;font:700 8pt JBMono,monospace;letter-spacing:.1em;border:1.6pt solid #000;border-radius:99px;padding:4pt 12pt 4pt 6pt}
+.pc-frase{border-left:7pt solid #000;padding:2pt 0 2pt 18pt;font:800 29pt/1.12 Bricolage,sans-serif;letter-spacing:-.01em}
+.pc-ev strong{display:block;font:700 40pt/1 Aquire,sans-serif;color:#dfff04;margin:0 0 9pt}
+.pc-ev p{margin:0;color:#fff;font-size:9pt;line-height:1.45}
+.pc-col small{display:block;font:700 6.6pt JBMono,monospace;letter-spacing:.08em;color:#dfff04;margin:0 0 3pt}
+.pc-col p{margin:0 0 12pt;color:#fff;font-size:9.4pt;line-height:1.5}
 .titulo{font-family:Aquire,sans-serif;font-weight:700;line-height:.95;margin:0}
 .sub{font-family:Bricolage,sans-serif;font-weight:600;line-height:1.22;margin:0}
 .idx{font-size:9pt;line-height:1.42}
@@ -155,19 +161,27 @@ def apertura(numero, nombre, titulo_lineas, sub, chips, seed):
                    f'<div class="ab chips" style="left:65pt;top:{530 + 40*len(titulo_lineas)}pt;color:#fff;width:440pt">{ch}</div></section>')
 
 
-def verde(cifra, frase, detalle, seed, boca=None):
-    """Hoja lima de punto clave: cifra gigante, una frase y el detalle en una forma negra."""
+def verde(n_, frase, cifra, cifra_nota, porque, hacer, seed, boca=None):
+    """Hoja lima de punto clave. Se distingue del divisor: sin número gigante; la frase manda,
+    con una barra negra a la izquierda, y debajo una caja negra de evidencia (cifra, por qué, qué hacer)."""
     num = len(PAGINAS) + 1
-    g = glifos(GL, seed, manchas=[(590, 760, 200, 180), (0, 160, 110)], excl=[(44, 60, 507, 640)] + HF, polvo=0.02)
-    forma = forma_lima([(56, 470), (380, 470), (380, 424), (539, 424), (539, 650), (56, 650)], 44)
+    g = glifos(GL, seed, manchas=[(560, 790, 230, 160), (600, 90, 120, 90)], excl=[(44, 54, 507, 580)] + HF, polvo=0.015)
+    y0 = 304
+    forma = forma_lima([(56, y0), (232, y0), (232, y0 + 40), (539, y0 + 40), (539, y0 + 236), (56, y0 + 236)], 44)
+    diana = ('<svg width="22pt" height="22pt" viewBox="0 0 40 40"><circle cx="20" cy="20" r="11" fill="none" stroke="#000" stroke-width="3"/>'
+             '<circle cx="20" cy="20" r="3.5" fill="#000"/><path d="M20 0V9M20 31V40M0 20H9M31 20H40" stroke="#000" stroke-width="3"/></svg>')
     b = ""
     if boca:
-        b = f'<div class="ab" style="left:64pt;top:712pt;width:440pt">{bocadillo(boca, invertido=True, expresion="guino", forma="gota")}</div>'
-    PAGINAS.append(f'<section class="pg" style="background:{LIMA}"><svg class="bg" viewBox="0 0 {W} {H}">{g}<path d="{forma}" fill="{NEGRO}"/></svg>{hud("#000", capstr() + " · PUNTO CLAVE", num)}'
-                   f'<div class="ab titulo" style="left:60pt;top:96pt;font-size:120pt;line-height:.8">{cifra}</div>'
-                   f'<div class="ab mono" style="left:64pt;top:212pt;font-size:8pt">PUNTO CLAVE</div>'
-                   f'<p class="ab sub" style="left:64pt;top:232pt;width:450pt;font-size:23pt;line-height:1.16">{frase}</p>'
-                   f'<div class="ab" style="left:92pt;top:500pt;width:420pt;color:#fff;font-size:10.6pt;line-height:1.55">{detalle}</div>{b}</section>')
+        b = f'<div class="ab" style="left:64pt;top:574pt;width:440pt">{bocadillo(boca, invertido=True, expresion="guino", forma="gota")}</div>'
+    PAGINAS.append(
+        f'<section class="pg" style="background:{LIMA}"><svg class="bg" viewBox="0 0 {W} {H}">{g}<path d="{forma}" fill="{NEGRO}"/></svg>'
+        f'{hud("#000", capstr() + " · PUNTO CLAVE", num)}'
+        f'<div class="ab pc-chip" style="left:64pt;top:74pt">{diana}<span>PUNTO CLAVE · {n_}</span></div>'
+        f'<div class="ab pc-frase" style="left:64pt;top:126pt;width:467pt">{frase}</div>'
+        f'<div class="ab mono" style="left:84pt;top:{y0 + 15}pt;color:{LIMA};font-size:7pt">LA EVIDENCIA</div>'
+        f'<div class="ab pc-ev" style="left:84pt;top:{y0 + 62}pt;width:150pt"><strong>{cifra}</strong><p>{cifra_nota}</p></div>'
+        f'<div class="ab pc-col" style="left:268pt;top:{y0 + 62}pt;width:244pt"><small>POR QUÉ</small><p>{porque}</p>'
+        f'<small>QUÉ HACER</small><p>{hacer}</p></div>{b}</section>')
 
 
 def fig(svg, pie=None, ley=None):

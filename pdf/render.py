@@ -3,7 +3,8 @@ import json, os, sys
 from playwright.sync_api import sync_playwright
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HTML = "file://" + os.path.join(RAIZ, "salida", "guia.html")
+NOMBRE = sys.argv[2] if len(sys.argv) > 2 else "guia"
+HTML = "file://" + os.path.join(RAIZ, "salida", NOMBRE + ".html")
 CHROME = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
 PREV = sys.argv[1] if len(sys.argv) > 1 else None
 
@@ -68,7 +69,7 @@ with sync_playwright() as p:
     errores = [r for r in res if not r.startswith("#LIBRE")]
     print("\n".join(errores) if errores else "SIN PROBLEMAS")
     print(" ".join(l.replace("#LIBRE ", "") for l in libres))
-    pg.pdf(path=os.path.join(RAIZ, "salida", "guia.pdf"), prefer_css_page_size=True, print_background=True)
+    pg.pdf(path=os.path.join(RAIZ, "salida", NOMBRE + ".pdf"), prefer_css_page_size=True, print_background=True)
     if PREV:
         os.makedirs(PREV, exist_ok=True)
         pg.emulate_media(media="print")
